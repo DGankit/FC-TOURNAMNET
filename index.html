@@ -1,0 +1,1025 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>FIFA Mobile UCL Tournament</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+  :root {
+    --ucl-blue: #00529B;
+    --ucl-gold: #FFD700;
+    --ucl-gray: #222;
+    --bg-dark: #0b1a38;
+    --bg-light: #f0f0f0;
+    --white: #fff;
+    --red: #e03c31;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+    background: var(--bg-dark);
+    color: var(--white);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px;
+  }
+
+  h1 {
+    color: var(--ucl-gold);
+    margin: 12px 0 10px 0;
+    font-weight: 700;
+    font-size: 1.8em;
+    text-align: center;
+  }
+
+  h2 {
+    margin-top: 20px;
+    font-weight: 700;
+    color: var(--ucl-gold);
+    text-align: center;
+  }
+
+  /* Container for main controls */
+  #admin-panel {
+    background: #0f285c;
+    border-radius: 10px;
+    padding: 10px;
+    width: 100%;
+    max-width: 600px;
+    margin-bottom: 15px;
+    box-shadow: 0 0 8px var(--ucl-gold);
+  }
+
+  label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  input[type="text"], textarea {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 1rem;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    border: none;
+  }
+  textarea {
+    height: 80px;
+    resize: vertical;
+  }
+  button {
+    background: var(--ucl-gold);
+    border: none;
+    padding: 10px 20px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border-radius: 6px;
+    width: 100%;
+  }
+  button:hover {
+    background: #f5c700;
+  }
+
+  /* Players List */
+  #players-list {
+    margin-top: 10px;
+  }
+  #players-list ul {
+    margin: 0;
+    padding-left: 20px;
+    max-height: 100px;
+    overflow-y: auto;
+  }
+
+  /* Tournament Container */
+  #tournament-container {
+    width: 100%;
+    max-width: 900px;
+  }
+
+  /* Groups */
+  .group {
+    background: #071635;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    padding: 12px;
+    box-shadow: inset 0 0 12px #001a4d;
+  }
+  .group h3 {
+    color: var(--ucl-gold);
+    margin: 0 0 6px 0;
+    text-align: center;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 6px;
+  }
+
+  th, td {
+    border: 1px solid var(--ucl-gold);
+    padding: 4px 6px;
+    text-align: center;
+    font-size: 0.85rem;
+  }
+  th {
+    background: var(--ucl-blue);
+    font-weight: 700;
+  }
+  td.match-score input {
+    width: 40px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-align: center;
+    border-radius: 4px;
+    border: none;
+    background: var(--bg-light);
+    color: var(--ucl-gray);
+  }
+
+  .match-row {
+    background: rgba(255, 215, 0, 0.1);
+  }
+
+  /* Buttons small */
+  button.small-btn {
+    background: var(--ucl-blue);
+    padding: 4px 9px;
+    font-size: 0.85rem;
+    border-radius: 5px;
+    margin: 2px;
+    color: var(--white);
+  }
+  button.small-btn:hover {
+    background: var(--ucl-gold);
+    color: var(--ucl-gray);
+  }
+
+  /* Leaderboard styling */
+  #leaderboard {
+    background: #071635;
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: inset 0 0 12px #001a4d;
+    margin-top: 20px;
+  }
+  #leaderboard h3 {
+    color: var(--ucl-gold);
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  #leaderboard table th {
+    background: var(--red);
+    color: var(--white);
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    #tournament-container {
+      max-width: 100%;
+    }
+    th, td {
+      font-size: 0.7rem;
+      padding: 3px 4px;
+    }
+    button {
+      font-size: 0.95rem;
+    }
+  }
+</style>
+</head>
+<body>
+<h1>FIFA Mobile UCL Tournament</h1>
+
+<div id="admin-panel">
+  <label for="player-name-input">Add Player Name (Max 20):</label>
+  <input type="text" id="player-name-input" maxlength="30" placeholder="Enter player name" autocomplete="off"/>
+  <button id="add-player-btn">Add Player</button>
+
+  <label for="bulk-player-names">Or Add Player Names in Bulk (One name per line):</label>
+  <textarea id="bulk-player-names" placeholder="Paste or type player names here..." autocomplete="off"></textarea>
+  <button id="add-bulk-players-btn">Add Players in Bulk</button>
+
+  <div id="players-list">
+    <strong>Players:</strong>
+    <ul id="players-ul"></ul>
+  </div>
+  <button id="start-tournament-btn" disabled>Start Tournament</button>
+</div>
+
+<div id="tournament-container" style="display:none;">
+  <h2>Group Stage</h2>
+  <div id="groups-container"></div>
+
+  <h2>Playoffs</h2>
+  <div id="playoffs-container"></div>
+
+  <h2>Knockout</h2>
+  <div id="knockout-container"></div>
+
+  <h2>Golden Match</h2>
+  <div id="golden-match-container"></div>
+
+  <div id="leaderboard">
+    <h3>Golden Boot - Top Scorers</h3>
+    <table aria-label="Leaderboard">
+      <thead>
+        <tr>
+          <th>Player</th>
+          <th>Goals</th>
+        </tr>
+      </thead>
+      <tbody id="leaderboard-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+(() => {
+  const maxPlayers = 20;
+  const groupsCount = 4;
+  const playersInput = document.getElementById('player-name-input');
+  const addPlayerBtn = document.getElementById('add-player-btn');
+  const bulkPlayerTextarea = document.getElementById('bulk-player-names');
+  const addBulkPlayersBtn = document.getElementById('add-bulk-players-btn');
+  const playersUl = document.getElementById('players-ul');
+  const startTournamentBtn = document.getElementById('start-tournament-btn');
+
+  const tournamentContainer = document.getElementById('tournament-container');
+  const groupsContainer = document.getElementById('groups-container');
+  const playoffsContainer = document.getElementById('playoffs-container');
+  const knockoutContainer = document.getElementById('knockout-container');
+  const goldenMatchContainer = document.getElementById('golden-match-container');
+  const leaderboardBody = document.getElementById('leaderboard-body');
+
+  let players = [];
+  let groups = {};
+  let groupMatches = {}; // groupName => array of matches
+  let groupStandings = {}; // groupName => standings array
+
+  let playoffsMatches = []; // Array of playoff match objects
+  let knockoutMatches = []; // Array of knockout match objects
+  let goldenMatch = null;
+
+  let topScorers = {};
+
+  // Helper utilities
+  function sanitizeName(name) {
+    return name.trim();
+  }
+
+  function arrayChunk(arr, n) {
+    const chunkSize = Math.ceil(arr.length / n);
+    const chunks = [];
+    for (let i = 0; i < n; i++) {
+      chunks.push(arr.slice(i * chunkSize, (i + 1) * chunkSize));
+    }
+    return chunks;
+  }
+
+  function createElement(tag, attrs = {}, children = []) {
+    const el = document.createElement(tag);
+    Object.entries(attrs).forEach(([k,v]) => {
+      if (k === 'class') {
+        el.className = v;
+      } else if (k === 'html') {
+        el.innerHTML = v;
+      } else {
+        el.setAttribute(k, v);
+      }
+    });
+    if (children && children.length) {
+      children.forEach(c => {
+        if(typeof c === 'string') {
+          el.appendChild(document.createTextNode(c));
+        } else {
+          el.appendChild(c);
+        }
+      });
+    }
+    return el;
+  }
+
+  // Add single player handler
+  addPlayerBtn.addEventListener('click', () => {
+    const name = sanitizeName(playersInput.value);
+    if (!name) return alert('Please enter a player name.');
+    if (players.length >= maxPlayers) return alert('Maximum 20 players allowed.');
+    if (players.includes(name)) return alert('Player already added.');
+    players.push(name);
+    playersInput.value = '';
+    renderPlayers();
+    updateStartBtn();
+  });
+
+  // Add bulk players handler
+  addBulkPlayersBtn.addEventListener('click', () => {
+    const bulkText = bulkPlayerTextarea.value;
+    if (!bulkText.trim()) {
+      return alert('Please enter at least one player name in the bulk input.');
+    }
+    const lines = bulkText.split('\n').map(l => sanitizeName(l)).filter(l => l !== '');
+    if (lines.length === 0) return alert('No valid player names found.');
+    if (players.length >= maxPlayers) return alert('Maximum 20 players already added.');
+    let addedCount = 0;
+    for (const name of lines) {
+      if (players.length >= maxPlayers) break;
+      if (!players.includes(name) && name) {
+        players.push(name);
+        addedCount++;
+      }
+    }
+    if (addedCount === 0) alert('No new unique player names were added.');
+    else alert(`${addedCount} player(s) added.`);
+    bulkPlayerTextarea.value = '';
+    renderPlayers();
+    updateStartBtn();
+  });
+
+  function renderPlayers() {
+    playersUl.innerHTML = '';
+    players.forEach((p, i) => {
+      const li = createElement('li', {}, [p]);
+      playersUl.appendChild(li);
+    });
+  }
+
+  function updateStartBtn() {
+    startTournamentBtn.disabled = players.length < 8; // Minimum 8 players to start reasonable tournament
+  }
+
+  // Start tournament: create groups
+  startTournamentBtn.addEventListener('click', () => {
+    if (players.length < 8) return alert('At least 8 players are needed to start the tournament.');
+    // Hide admin panel
+    document.getElementById('admin-panel').style.display = 'none';
+    tournamentContainer.style.display = '';
+
+    // Create groups
+    createGroups();
+    createGroupMatches();
+    renderGroups();
+    updateLeaderboard();
+
+    // Scroll to group stage
+    groupsContainer.scrollIntoView({behavior: 'smooth'});
+  });
+
+  function createGroups() {
+    groups = {};
+    const shuffledPlayers = [...players].sort(() => Math.random() - 0.5);
+    const chunks = arrayChunk(shuffledPlayers, groupsCount);
+    const groupNames = ['A', 'B', 'C', 'D'];
+
+    groupNames.forEach((gName, idx) => {
+      groups[gName] = chunks[idx] || [];
+    });
+  }
+
+  // Create group matches (2 rounds home and away)
+  function createGroupMatches() {
+    groupMatches = {};
+    for (const grp in groups) {
+      const gPlayers = groups[grp];
+      const matches = [];
+      for(let i=0;i<gPlayers.length;i++) {
+        for(let j=i+1;j<gPlayers.length;j++) {
+          // two legs: home - away
+          matches.push(createMatch(gPlayers[i], gPlayers[j], grp, 1));
+          matches.push(createMatch(gPlayers[j], gPlayers[i], grp, 2));
+        }
+      }
+      groupMatches[grp] = matches;
+      calculateGroupStandings(grp);
+    }
+  }
+
+  // Match object for group stage
+  function createMatch(home, away, group, round) {
+    return {
+      id: `${group}-${home}-${away}-R${round}`,
+      home,
+      away,
+      group,
+      round,
+      homeGoals: null,
+      awayGoals: null,
+      winner: null,
+      stage: 'group'
+    };
+  }
+
+  // Calculate standings for a group
+  function calculateGroupStandings(group) {
+    const playersInGroup = groups[group];
+    if (!playersInGroup) return;
+    // Initialize stats
+    let stats = {};
+    playersInGroup.forEach(p => {
+      stats[p] = {
+        played: 0,
+        won: 0,
+        draw: 0,
+        lost: 0,
+        gf: 0, // goals for
+        ga: 0, // goals against
+        gd: 0, // goal difference
+        points: 0,
+      };
+    });
+
+    const matches = groupMatches[group];
+    matches.forEach(m => {
+      if (m.homeGoals !== null && m.awayGoals !== null) {
+        stats[m.home].played++;
+        stats[m.away].played++;
+        stats[m.home].gf += m.homeGoals;
+        stats[m.home].ga += m.awayGoals;
+        stats[m.away].gf += m.awayGoals;
+        stats[m.away].ga += m.homeGoals;
+
+        if (m.homeGoals > m.awayGoals) {
+          stats[m.home].won++;
+          stats[m.away].lost++;
+          stats[m.home].points += 3;
+        } else if (m.homeGoals === m.awayGoals) {
+          stats[m.home].draw++;
+          stats[m.away].draw++;
+          stats[m.home].points += 1;
+          stats[m.away].points += 1;
+        } else {
+          stats[m.home].lost++;
+          stats[m.away].won++;
+          stats[m.away].points += 3;
+        }
+      }
+    });
+    // Calculate GD
+    Object.values(stats).forEach(s => {
+      s.gd = s.gf - s.ga;
+    });
+
+    // Convert to array and sort standings by points, gd, gf desc
+    let standings = Object.entries(stats).map(([player, s]) => ({
+      player,
+      ...s
+    }));
+    standings.sort((a,b) => {
+      if (b.points !== a.points) return b.points - a.points;
+      if (b.gd !== a.gd) return b.gd - a.gd;
+      return b.gf - a.gf;
+    });
+
+    groupStandings[group] = standings;
+  }
+
+  // Render groups and matches
+  function renderGroups() {
+    groupsContainer.innerHTML = '';
+
+    for (const grp in groups) {
+      const groupDiv = createElement('div', {class:'group', 'aria-label': `Group ${grp}`} );
+
+      const heading = createElement('h3', {}, [`Group ${grp}`]);
+      groupDiv.appendChild(heading);
+
+      // Standings table
+      const standingsTable = createElement('table', {'aria-label': `Group ${grp} Standings`});
+      const thead = createElement('thead');
+      thead.innerHTML = `
+        <tr>
+          <th>Pos</th><th>Player</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th>
+        </tr>`;
+      standingsTable.appendChild(thead);
+      const tbody = createElement('tbody');
+      const standings = groupStandings[grp] || [];
+      standings.forEach((st,i) => {
+        const tr = createElement('tr');
+        tr.innerHTML = `
+          <td>${i+1}</td>
+          <td>${st.player}</td>
+          <td>${st.played}</td>
+          <td>${st.won}</td>
+          <td>${st.draw}</td>
+          <td>${st.lost}</td>
+          <td>${st.gf}</td>
+          <td>${st.ga}</td>
+          <td>${st.gd}</td>
+          <td>${st.points}</td>`;
+        tbody.appendChild(tr);
+      });
+      standingsTable.appendChild(tbody);
+
+      groupDiv.appendChild(standingsTable);
+
+      // Matches table
+      const matchesDiv = createElement('div', {ariaLive:'polite'});
+      const matchesTable = createElement('table', {'aria-label': `Group ${grp} Matches`});
+      const mthead = createElement('thead');
+      mthead.innerHTML = `
+        <tr>
+          <th>Round</th>
+          <th>Home</th>
+          <th>Score</th>
+          <th>Away</th>
+          <th>Update</th>
+        </tr>`;
+      matchesTable.appendChild(mthead);
+      const mtbody = createElement('tbody');
+      (groupMatches[grp] || []).forEach(m => {
+        const tr = createElement('tr', {class:'match-row'});
+
+        const roundTd = createElement('td', {}, [`${m.round}`]);
+        const homeTd = createElement('td', {}, [m.home]);
+        // score inputs
+        const scoreTd = createElement('td', {class:'match-score'});
+        const homeInput = createElement('input', {type:'number', min:'0', max:'20', 'aria-label': `${m.home} goals in group match`});
+        homeInput.value = m.homeGoals === null ? '' : m.homeGoals;
+        const awayInput = createElement('input', {type:'number', min:'0', max:'20', 'aria-label': `${m.away} goals in group match`});
+        awayInput.value = m.awayGoals === null ? '' : m.awayGoals;
+
+        scoreTd.appendChild(homeInput);
+        scoreTd.appendChild(createElement('span', {style:'margin: 0 4px; font-weight: 700;'}, [' - ']));
+        scoreTd.appendChild(awayInput);
+
+        const awayTd = createElement('td', {}, [m.away]);
+        const updateBtn = createElement('button', {class:'small-btn', 'aria-label': `Update score for match ${m.home} vs ${m.away} round ${m.round}`}, ['Update']);
+        updateBtn.addEventListener('click', () => {
+          const hGoals = parseInt(homeInput.value);
+          const aGoals = parseInt(awayInput.value);
+          if (isNaN(hGoals) || isNaN(aGoals)) {
+            alert('Please enter valid numeric scores for both teams (0 or positive).');
+            return;
+          }
+          if (hGoals < 0 || aGoals < 0 || hGoals > 20 || aGoals > 20) {
+            alert('Scores must be between 0 and 20.');
+            return;
+          }
+
+          m.homeGoals = hGoals;
+          m.awayGoals = aGoals;
+
+          // Update top scorers
+          updateTopScorers(m.home, hGoals);
+          updateTopScorers(m.away, aGoals);
+
+          calculateGroupStandings(m.group);
+          renderGroups();
+          updateAdvancements();
+          renderPlayoffs();
+          renderKnockout();
+          renderGoldenMatch();
+          updateLeaderboard();
+        });
+
+        tr.appendChild(roundTd);
+        tr.appendChild(homeTd);
+        tr.appendChild(scoreTd);
+        tr.appendChild(awayTd);
+        tr.appendChild(createElement('td', {}, [updateBtn]));
+
+        mtbody.appendChild(tr);
+      });
+      matchesTable.appendChild(mtbody);
+      matchesDiv.appendChild(matchesTable);
+      groupDiv.appendChild(matchesDiv);
+
+      groupsContainer.appendChild(groupDiv);
+    }
+  }
+
+  // Track top scorers map: playerName => goals
+  function updateTopScorers(player, goals) {
+    // accumulate goals from group and knockout matches
+    topScorers[player] = (topScorers[player] || 0) + goals;
+  }
+
+  // After group stage ends, determine playoff qualifiers:
+  // For playoffs: 2nd and 3rd of each group => total 8 players
+  // Top 1 from groups go direct to knockout
+  let playoffPlayers = [];
+  let knockoutPlayers = [];
+
+  function updateAdvancements() {
+    playoffPlayers = [];
+    knockoutPlayers = [];
+
+    // 1. Top 1 group qualify knockout directly
+    // 2. 2nd and 3rd to playoff
+    for (const g in groupStandings) {
+      const stand = groupStandings[g];
+      if (!stand || stand.length < 3) continue;
+      knockoutPlayers.push(stand[0].player);
+      playoffPlayers.push(stand[1].player);
+      playoffPlayers.push(stand[2].player);
+    }
+
+    // If less than expected players, adjust
+    // In knockoutPlayers and playoffPlayers arrays
+  }
+
+  /* 
+   Playoff matches formation (2nd and 3rd of groups face off)
+   We'll pair them across groups as:
+   Group A 2nd vs Group B 3rd, Group B 2nd vs Group A 3rd,
+   Group C 2nd vs Group D 3rd, Group D 2nd vs Group C 3rd
+   Winners go to knockout round to join group winners.
+  */
+
+  playoffsMatches = [];
+
+  function createPlayoffMatches() {
+    playoffsMatches = [];
+    // Map for easier player lookup by group & position
+    // We'll build pairs as above
+    const groupNames = ['A','B','C','D'];
+    if (playoffPlayers.length < 8) return;
+
+    // Build a map by group => 2nd and 3rd
+    const posMap = {};
+    for (const g of groupNames) {
+      const stand = groupStandings[g];
+      if (!stand || stand.length < 3) continue;
+      posMap[g] = {
+        '2nd': stand[1].player,
+        '3rd': stand[2].player
+      };
+    }
+
+    // Pairings:
+    // A2 vs B3
+    // B2 vs A3
+    // C2 vs D3
+    // D2 vs C3
+    const pairs = [
+      [posMap['A']?.['2nd'], posMap['B']?.['3rd']],
+      [posMap['B']?.['2nd'], posMap['A']?.['3rd']],
+      [posMap['C']?.['2nd'], posMap['D']?.['3rd']],
+      [posMap['D']?.['2nd'], posMap['C']?.['3rd']]
+    ];
+
+    pairs.forEach((pair, i) => {
+      if(pair[0] && pair[1]) {
+        playoffsMatches.push(createKnockoutMatch(pair[0], pair[1], 'playoff', i+1));
+      }
+    });
+  }
+
+  // Knockout matches from group winners and playoff winners
+
+  knockoutMatches = [];
+
+  function prepareKnockoutMatches() {
+    knockoutMatches = [];
+    // 4 group winners + 4 playoff winners make 8 players in knockout quarter finals
+    // We'll match as:
+    // Group A winner vs Playoff match 4 winner
+    // Group B winner vs Playoff match 3 winner
+    // Group C winner vs Playoff match 2 winner
+    // Group D winner vs Playoff match 1 winner
+    const groupWinners = knockoutPlayers; // 4 players
+    if (groupWinners.length < 4) return;
+    if (playoffsMatches.length < 4) return;
+
+    // Get playoff winners from playoffsMatches if decided
+    const playoffWinners = playoffsMatches.map(m => {
+      // Determine winner aggregate if legs played
+      if (m.aggregates.home > m.aggregates.away) return m.home;
+      if (m.aggregates.home < m.aggregates.away) return m.away;
+      return null; // if tie unresolved
+    });
+
+    // only proceed if all playoff winners known
+    if (playoffWinners.some(w => !w)) return;
+
+    // Match group winners with playoff winners as described
+    // Playoff matches reversed index for opponent
+    const pairs = [
+      [groupWinners[0], playoffWinners[3]],
+      [groupWinners[1], playoffWinners[2]],
+      [groupWinners[2], playoffWinners[1]],
+      [groupWinners[3], playoffWinners[0]],
+    ];
+
+    pairs.forEach((p, idx) => {
+      knockoutMatches.push(createKnockoutMatch(p[0], p[1], 'knockout', idx+1));
+    });
+  }
+
+  // Create knockout playoff or knockout match object (2 legs + golden match)
+  function createKnockoutMatch(home, away, stage, id) {
+    return {
+      id: `${stage}-match${id}`,
+      home,
+      away,
+      stage,
+      leg1: { homeGoals: null, awayGoals: null },
+      leg2: { homeGoals: null, awayGoals: null },
+      goldenMatch: { homeGoals: null, awayGoals: null },
+      aggregates: { home: 0, away: 0 },
+      winner: null,
+    };
+  }
+
+  // Render playoffs matches
+  function renderPlayoffs() {
+    createPlayoffMatches();
+    playoffsContainer.innerHTML = '';
+    if (playoffsMatches.length === 0) {
+      playoffsContainer.innerHTML = '<p>Playoff matches will appear here after group stage.</p>';
+      return;
+    }
+    playoffsContainer.innerHTML = '<p>Top 2nd and 3rd place from each group compete here for knockout advancement.</p>';
+    playoffsMatches.forEach(match => {
+      const wrapper = createElement('div', {class:'group'});
+      const heading = createElement('h3', {}, [`Playoff Match ${playoffsMatches.indexOf(match)+1}`]);
+      wrapper.appendChild(heading);
+
+      const table = createElement('table', {'aria-label': `Playoff match ${match.home} vs ${match.away}`});
+      const thead = createElement('thead');
+      thead.innerHTML = `
+        <tr>
+          <th>Leg</th><th>Home</th><th>Score</th><th>Away</th><th>Update</th>
+        </tr>`;
+      table.appendChild(thead);
+      const tbody = createElement('tbody');
+
+      // Leg 1 row
+      tbody.appendChild(createKnockoutMatchRow(match, 'leg1', 1));
+      tbody.appendChild(createKnockoutMatchRow(match, 'leg2', 2));
+
+      // Golden match row if needed
+      if (match.winner === null && match.aggregates.home === match.aggregates.away
+         && match.leg1.homeGoals !== null && match.leg1.awayGoals !== null
+         && match.leg2.homeGoals !== null && match.leg2.awayGoals !== null) {
+        tbody.appendChild(createKnockoutGoldenMatchRow(match));
+      }
+
+      // Winner row
+      const winnerRow = createElement('tr');
+      const winnerCell = createElement('td', {colspan: '5', style: 'text-align:center; font-weight: 700; margin-top: 10px; color:'+(match.winner ? 'var(--ucl-gold)' : 'inherit')});
+      winnerCell.textContent = match.winner ? `Winner: ${match.winner}` : 'Winner: TBD';
+      winnerRow.appendChild(winnerCell);
+      tbody.appendChild(winnerRow);
+
+      table.appendChild(tbody);
+      wrapper.appendChild(table);
+      playoffsContainer.appendChild(wrapper);
+    });
+  }
+
+  // Render knockout matches (same as playoffs)
+  function renderKnockout() {
+    knockoutContainer.innerHTML = '';
+    if (knockoutMatches.length === 0) {
+      knockoutContainer.innerHTML = '<p>Knockout matches will appear here after playoffs are decided.</p>';
+      return;
+    }
+    knockoutContainer.innerHTML = '<p>Knockout stage with group winners and playoff winners</p>';
+
+    knockoutMatches.forEach(match => {
+      const wrapper = createElement('div', {class:'group'});
+      const heading = createElement('h3', {}, [`Knockout Match ${knockoutMatches.indexOf(match)+1}`]);
+      wrapper.appendChild(heading);
+
+      const table = createElement('table', {'aria-label': `Knockout match ${match.home} vs ${match.away}`});
+      const thead = createElement('thead');
+      thead.innerHTML = `
+        <tr>
+          <th>Leg</th><th>Home</th><th>Score</th><th>Away</th><th>Update</th>
+        </tr>`;
+      table.appendChild(thead);
+      const tbody = createElement('tbody');
+
+      tbody.appendChild(createKnockoutMatchRow(match, 'leg1', 1));
+      tbody.appendChild(createKnockoutMatchRow(match, 'leg2', 2));
+
+      if (match.winner === null && match.aggregates.home === match.aggregates.away
+         && match.leg1.homeGoals !== null && match.leg1.awayGoals !== null
+         && match.leg2.homeGoals !== null && match.leg2.awayGoals !== null) {
+        tbody.appendChild(createKnockoutGoldenMatchRow(match));
+      }
+
+      const winnerRow = createElement('tr');
+      const winnerCell = createElement('td', {colspan: '5', style: 'text-align:center; font-weight: 700; color:'+(match.winner ? 'var(--ucl-gold)' : 'inherit')});
+      winnerCell.textContent = match.winner ? `Winner: ${match.winner}` : 'Winner: TBD';
+      winnerRow.appendChild(winnerCell);
+      tbody.appendChild(winnerRow);
+
+      table.appendChild(tbody);
+      wrapper.appendChild(table);
+      knockoutContainer.appendChild(wrapper);
+    });
+  }
+
+  // Create row for knockout/playoff leg match
+  function createKnockoutMatchRow(match, legKey, legNum) {
+    const legInfo = match[legKey];
+    const tr = createElement('tr');
+
+    const legTd = createElement('td', {}, [`Leg ${legNum}`]);
+    const homeTd = createElement('td', {}, [match.home]);
+    const scoreTd = createElement('td', {class:'match-score'});
+
+    const homeInput = createElement('input', {type:'number', min:'0', max:'20', 'aria-label': `Home goals leg ${legNum} in ${match.home} vs ${match.away}`});
+    homeInput.value = legInfo.homeGoals === null ? '' : legInfo.homeGoals;
+    const awayInput = createElement('input', {type:'number', min:'0', max:'20', 'aria-label': `Away goals leg ${legNum} in ${match.home} vs ${match.away}`});
+    awayInput.value = legInfo.awayGoals === null ? '' : legInfo.awayGoals;
+
+    scoreTd.appendChild(homeInput);
+    scoreTd.appendChild(createElement('span', {style:'margin: 0 4px; font-weight:700;'}, [' - ']));
+    scoreTd.appendChild(awayInput);
+
+    const awayTd = createElement('td', {}, [match.away]);
+    const updateBtn = createElement('button', {class:'small-btn', 'aria-label': `Update score leg ${legNum} for ${match.home} vs ${match.away}`}, ['Update']);
+
+    updateBtn.addEventListener('click', () => {
+      const hGoals = parseInt(homeInput.value);
+      const aGoals = parseInt(awayInput.value);
+
+      if (isNaN(hGoals) || isNaN(aGoals)) {
+        alert('Please enter valid numeric scores for both teams (0 or positive).');
+        return;
+      }
+      if (hGoals < 0 || aGoals < 0 || hGoals > 20 || aGoals > 20) {
+        alert('Scores must be between 0 and 20.');
+        return;
+      }
+
+      // We must subtract previously added goals from top scorers
+      subtractGoalsFromTopScorers(match.home, legInfo.homeGoals);
+      subtractGoalsFromTopScorers(match.away, legInfo.awayGoals);
+
+      legInfo.homeGoals = hGoals;
+      legInfo.awayGoals = aGoals;
+
+      // Add new goals to top scorers
+      updateTopScorers(match.home, hGoals);
+      updateTopScorers(match.away, aGoals);
+
+      calculateKnockoutWinner(match);
+      renderPlayoffs();
+      renderKnockout();
+      renderGoldenMatch();
+      updateLeaderboard();
+    });
+
+    tr.appendChild(legTd);
+    tr.appendChild(homeTd);
+    tr.appendChild(scoreTd);
+    tr.appendChild(awayTd);
+    tr.appendChild(createElement('td', {}, [updateBtn]));
+
+    return tr;
+  }
+
+  // Create row for golden match in knockout or playoff
+  function createKnockoutGoldenMatchRow(match) {
+    const tr = createElement('tr');
+
+    const legTd = createElement('td', {}, ['Golden Match']);
+    const homeTd = createElement('td', {}, [match.home]);
+    const scoreTd = createElement('td', {class:'match-score'});
+
+    const homeInput = createElement('input', {type:'number', min:'0', max:'20', 'aria-label': `Golden match home goals for ${match.home}`});
+    homeInput.value = match.goldenMatch.homeGoals === null ? '' : match.goldenMatch.homeGoals;
+    const awayInput = createElement('input', {type:'number', min:'0', max:'20', 'aria-label': `Golden match away goals for ${match.away}`});
+    awayInput.value = match.goldenMatch.awayGoals === null ? '' : match.goldenMatch.awayGoals;
+
+    scoreTd.appendChild(homeInput);
+    scoreTd.appendChild(createElement('span', {style:'margin: 0 4px; font-weight:700;'}, [' - ']));
+    scoreTd.appendChild(awayInput);
+
+    const awayTd = createElement('td', {}, [match.away]);
+    const updateBtn = createElement('button', {class:'small-btn', 'aria-label': `Update golden match score for ${match.home} vs ${match.away}`}, ['Update']);
+
+    updateBtn.addEventListener('click', () => {
+      const hGoals = parseInt(homeInput.value);
+      const aGoals = parseInt(awayInput.value);
+
+      if (isNaN(hGoals) || isNaN(aGoals)) {
+        alert('Please enter valid numeric scores for both teams (0 or positive).');
+        return;
+      }
+      if (hGoals < 0 || aGoals < 0 || hGoals > 20 || aGoals > 20) {
+        alert('Scores must be between 0 and 20.');
+        return;
+      }
+
+      // We must subtract previously added goals from top scorers
+      subtractGoalsFromTopScorers(match.home, match.goldenMatch.homeGoals);
+      subtractGoalsFromTopScorers(match.away, match.goldenMatch.awayGoals);
+
+      match.goldenMatch.homeGoals = hGoals;
+      match.goldenMatch.awayGoals = aGoals;
+
+      // Add new goals to top scorers
+      updateTopScorers(match.home, hGoals);
+      updateTopScorers(match.away, aGoals);
+
+      // Determine winner from golden match
+      if (hGoals > aGoals) {
+        match.winner = match.home;
+      } else if (aGoals > hGoals) {
+        match.winner = match.away;
+      } else {
+        match.winner = null; // draw in golden match not allowed logically but handled
+      }
+
+      renderPlayoffs();
+      renderKnockout();
+      renderGoldenMatch();
+      updateLeaderboard();
+    });
+
+    tr.appendChild(legTd);
+    tr.appendChild(homeTd);
+    tr.appendChild(scoreTd);
+    tr.appendChild(awayTd);
+    tr.appendChild(createElement('td', {}, [updateBtn]));
+
+    return tr;
+  }
+
+  // Calculate knockout or playoff match winner based on aggregates and golden match
+  function calculateKnockoutWinner(match) {
+    if (match.leg1.homeGoals === null || match.leg1.awayGoals === null) return;
+    if (match.leg2.homeGoals === null || match.leg2.awayGoals === null) return;
+    // Aggregate scores
+    // Aggregate rules: leg1 homeGoals + leg2 awayGoals for home; leg1 awayGoals + leg2 homeGoals for away
+    const aggHome = match.leg1.homeGoals + match.leg2.awayGoals;
+    const aggAway = match.leg1.awayGoals + match.leg2.homeGoals;
+    match.aggregates.home = aggHome;
+    match.aggregates.away = aggAway;
+
+    if (aggHome > aggAway) {
+      match.winner = match.home;
+    } else if (aggAway > aggHome) {
+      match.winner = match.away;
+    } else {
+      // Tie aggregate, check golden match if played
+      if (match.goldenMatch.homeGoals === null || match.goldenMatch.awayGoals === null) {
+        match.winner = null;
+      } else {
+        if (match.goldenMatch.homeGoals > match.goldenMatch.awayGoals) match.winner = match.home;
+        else if (match.goldenMatch.awayGoals > match.goldenMatch.homeGoals) match.winner = match.away;
+        else match.winner = null;
+      }
+    }
+
+    // If knockout, after all playoff winners known create knockout matches
+    if (match.stage === 'playoff') {
+      const allWinnersKnown = playoffsMatches.every(m => m.winner !== null);
+      if (allWinnersKnown) {
+        prepareKnockoutMatches();
+        renderKnockout();
+      }
+    }
+
+    if (match.stage === 'knockout') {
+      // TODO: Could add next rounds here for extended tournament, but limited scope for now
+    }
+  }
+
+  // Subtract previously added goals from top scorers (for knockout legs/golden)
+  function subtractGoalsFromTopScorers(player, goals) {
+    if (player && goals !== null && topScorers[player]) {
+      topScorers[player] -= goals;
+      if (topScorers[player] < 0) topScorers[player] = 0;
+    }
+  }
+
+  function renderGoldenMatch() {
+    goldenMatchContainer.innerHTML = '';
+    // Additional global golden match not needed, handled inside playoff/knockout match rows
+    // Just placeholder for clarity
+  }
+
+  // Update leaderboard
+  function updateLeaderboard() {
+    // Sort topScorers by descending goals
+    const sorted = Object.entries(topScorers).sort((a,b) => b[1]-a[1]);
+    leaderboardBody.innerHTML = '';
+    sorted.forEach(([player, goals]) => {
+      const tr = createElement('tr');
+      tr.innerHTML = `<td>${player}</td><td>${goals}</td>`;
+      leaderboardBody.appendChild(tr);
+    });
+  }
+
+})()
+</script>
+</body>
+</html>
