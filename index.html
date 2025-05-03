@@ -1,1025 +1,1550 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-<title>FIFA Mobile UCL Tournament</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UEFA Champions League Style FIFA Tournament</title>
+    <style>
+        :root {
+            --ucl-blue: #1a3e8c;
+            --ucl-dark: #0a1f4d;
+            --ucl-gold: #e6b220;
+            --ucl-silver: #e0e0e0;
+            --ucl-green: #4CAF50;
+            --ucl-red: #f44336;
+        }
 
-  :root {
-    --ucl-blue: #00529B;
-    --ucl-gold: #FFD700;
-    --ucl-gray: #222;
-    --bg-dark: #0b1a38;
-    --bg-light: #f0f0f0;
-    --white: #fff;
-    --red: #e03c31;
-  }
+        body {
+            font-family: 'Arial', sans-serif;
+            background: url('https://images.unsplash.com/photo-1574629810360-7efbbe195018') center/cover fixed;
+            color: white;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            position: relative;
+        }
 
-  * {
-    box-sizing: border-box;
-  }
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: -1;
+        }
 
-  body {
-    margin: 0;
-    font-family: 'Montserrat', sans-serif;
-    background: var(--bg-dark);
-    color: var(--white);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 8px;
-  }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
 
-  h1 {
-    color: var(--ucl-gold);
-    margin: 12px 0 10px 0;
-    font-weight: 700;
-    font-size: 1.8em;
-    text-align: center;
-  }
+        header {
+            text-align: center;
+            padding: 20px 0;
+            background: rgba(0,0,0,0.7);
+            border-bottom: 3px solid var(--ucl-gold);
+            border-radius: 0 0 15px 15px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
 
-  h2 {
-    margin-top: 20px;
-    font-weight: 700;
-    color: var(--ucl-gold);
-    text-align: center;
-  }
+        header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--ucl-blue), var(--ucl-gold), var(--ucl-blue));
+        }
 
-  /* Container for main controls */
-  #admin-panel {
-    background: #0f285c;
-    border-radius: 10px;
-    padding: 10px;
-    width: 100%;
-    max-width: 600px;
-    margin-bottom: 15px;
-    box-shadow: 0 0 8px var(--ucl-gold);
-  }
+        h1, h2, h3 {
+            color: var(--ucl-gold);
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+        }
 
-  label {
-    display: block;
-    margin-bottom: 6px;
-    font-weight: 600;
-  }
-  input[type="text"], textarea {
-    width: 100%;
-    padding: 8px 10px;
-    font-size: 1rem;
-    margin-bottom: 8px;
-    border-radius: 6px;
-    border: none;
-  }
-  textarea {
-    height: 80px;
-    resize: vertical;
-  }
-  button {
-    background: var(--ucl-gold);
-    border: none;
-    padding: 10px 20px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    cursor: pointer;
-    border-radius: 6px;
-    width: 100%;
-  }
-  button:hover {
-    background: #f5c700;
-  }
+        .card {
+            background: rgba(0,0,0,0.7);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--ucl-gold);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            backdrop-filter: blur(5px);
+        }
 
-  /* Players List */
-  #players-list {
-    margin-top: 10px;
-  }
-  #players-list ul {
-    margin: 0;
-    padding-left: 20px;
-    max-height: 100px;
-    overflow-y: auto;
-  }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--ucl-gold);
+            flex-wrap: wrap;
+        }
 
-  /* Tournament Container */
-  #tournament-container {
-    width: 100%;
-    max-width: 900px;
-  }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: rgba(0,0,0,0.3);
+            margin-right: 5px;
+            border-radius: 5px 5px 0 0;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
 
-  /* Groups */
-  .group {
-    background: #071635;
-    border-radius: 10px;
-    margin-bottom: 15px;
-    padding: 12px;
-    box-shadow: inset 0 0 12px #001a4d;
-  }
-  .group h3 {
-    color: var(--ucl-gold);
-    margin: 0 0 6px 0;
-    text-align: center;
-  }
+        .tab:hover {
+            background: rgba(26, 62, 140, 0.5);
+        }
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 6px;
-  }
+        .tab.active {
+            background: var(--ucl-blue);
+            color: var(--ucl-gold);
+        }
 
-  th, td {
-    border: 1px solid var(--ucl-gold);
-    padding: 4px 6px;
-    text-align: center;
-    font-size: 0.85rem;
-  }
-  th {
-    background: var(--ucl-blue);
-    font-weight: 700;
-  }
-  td.match-score input {
-    width: 40px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    text-align: center;
-    border-radius: 4px;
-    border: none;
-    background: var(--bg-light);
-    color: var(--ucl-gray);
-  }
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
 
-  .match-row {
-    background: rgba(255, 215, 0, 0.1);
-  }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
 
-  /* Buttons small */
-  button.small-btn {
-    background: var(--ucl-blue);
-    padding: 4px 9px;
-    font-size: 0.85rem;
-    border-radius: 5px;
-    margin: 2px;
-    color: var(--white);
-  }
-  button.small-btn:hover {
-    background: var(--ucl-gold);
-    color: var(--ucl-gray);
-  }
+        .tab-content.active {
+            display: block;
+        }
 
-  /* Leaderboard styling */
-  #leaderboard {
-    background: #071635;
-    border-radius: 10px;
-    padding: 10px;
-    box-shadow: inset 0 0 12px #001a4d;
-    margin-top: 20px;
-  }
-  #leaderboard h3 {
-    color: var(--ucl-gold);
-    margin-bottom: 8px;
-    text-align: center;
-  }
-  #leaderboard table th {
-    background: var(--red);
-    color: var(--white);
-  }
+        button {
+            background-color: var(--ucl-gold);
+            color: var(--ucl-dark);
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin: 5px 0;
+        }
 
-  /* Responsive */
-  @media (max-width: 600px) {
-    #tournament-container {
-      max-width: 100%;
-    }
-    th, td {
-      font-size: 0.7rem;
-      padding: 3px 4px;
-    }
-    button {
-      font-size: 0.95rem;
-    }
-  }
-</style>
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            background-color: #f8d05a;
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        input, select, textarea {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            margin: 5px 0;
+            width: 100%;
+            background: rgba(255,255,255,0.9);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: rgba(0,0,0,0.5);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        th {
+            background-color: var(--ucl-blue);
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(255,255,255,0.05);
+        }
+
+        tr:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .groups-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .group {
+            background: rgba(0,0,0,0.5);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--ucl-gold);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .group h3 {
+            margin-top: 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--ucl-gold);
+            display: flex;
+            align-items: center;
+        }
+
+        .group h3::before {
+            content: '⚽';
+            margin-right: 10px;
+        }
+
+        .bracket {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .round {
+            min-width: 300px;
+        }
+
+        .match {
+            background: rgba(0,0,0,0.5);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid var(--ucl-gold);
+            position: relative;
+        }
+
+        .match::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--ucl-gold);
+            border-radius: 5px 0 0 5px;
+        }
+
+        .match-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .match-teams {
+            flex-grow: 1;
+        }
+
+        .match-score {
+            font-weight: bold;
+            margin: 0 10px;
+            color: var(--ucl-gold);
+        }
+
+        .match-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .score-input {
+            width: 50px;
+            text-align: center;
+            padding: 5px;
+        }
+
+        .qualifying {
+            background-color: rgba(26, 62, 140, 0.5);
+            font-weight: bold;
+        }
+
+        .winner {
+            color: var(--ucl-gold);
+            font-weight: bold;
+        }
+
+        .winner::after {
+            content: ' 🏆';
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--ucl-dark);
+            padding: 30px;
+            border-radius: 10px;
+            border: 2px solid var(--ucl-gold);
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .loader {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 4px solid var(--ucl-gold);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--ucl-blue);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.5s;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        .trophy {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            font-size: 40px;
+            animation: bounce 2s infinite;
+            display: none;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @media (max-width: 768px) {
+            .groups-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                margin-bottom: 5px;
+                border-radius: 5px;
+            }
+            
+            .bracket {
+                flex-direction: column;
+            }
+            
+            .player-input {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-<h1>FIFA Mobile UCL Tournament</h1>
+    <div class="container">
+        <header>
+            <h1>⚽ UEFA Champions League Style FIFA Tournament</h1>
+            <p>Create and manage your custom tournament with UCL rules</p>
+        </header>
 
-<div id="admin-panel">
-  <label for="player-name-input">Add Player Name (Max 20):</label>
-  <input type="text" id="player-name-input" maxlength="30" placeholder="Enter player name" autocomplete="off"/>
-  <button id="add-player-btn">Add Player</button>
+        <div class="tabs">
+            <div class="tab active" data-tab="setup">Setup</div>
+            <div class="tab" data-tab="groups">Group Stage</div>
+            <div class="tab" data-tab="playoffs">Playoffs</div>
+            <div class="tab" data-tab="knockout">Knockout Stage</div>
+            <div class="tab" data-tab="stats">Statistics</div>
+        </div>
 
-  <label for="bulk-player-names">Or Add Player Names in Bulk (One name per line):</label>
-  <textarea id="bulk-player-names" placeholder="Paste or type player names here..." autocomplete="off"></textarea>
-  <button id="add-bulk-players-btn">Add Players in Bulk</button>
+        <div class="tab-content active" id="setupTab">
+            <div class="card">
+                <h2>1. Add Participants</h2>
+                <div class="player-input">
+                    <input type="text" id="playerName" placeholder="Player name" required>
+                    <input type="text" id="playerIG" placeholder="Instagram @" required>
+                    <input type="text" id="playerFIFAID" placeholder="FIFA Mobile ID" required>
+                    <button id="addPlayer">Add Player</button>
+                </div>
+                
+                <h3>Or Bulk Upload</h3>
+                <input type="file" id="bulkUpload" accept=".csv,.xlsx">
+                <button id="uploadBtn">Upload CSV/Excel</button>
+                
+                <h3>Current Players (<span id="playerCount">0</span>)</h3>
+                <table id="playersTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Instagram</th>
+                            <th>FIFA ID</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="playersList"></tbody>
+                </table>
+            </div>
 
-  <div id="players-list">
-    <strong>Players:</strong>
-    <ul id="players-ul"></ul>
-  </div>
-  <button id="start-tournament-btn" disabled>Start Tournament</button>
-</div>
+            <div class="card">
+                <h2>2. Generate Tournament</h2>
+                <p>16 players will be divided into 4 groups of 4</p>
+                <button id="generateTournament">Generate Groups</button>
+            </div>
+        </div>
 
-<div id="tournament-container" style="display:none;">
-  <h2>Group Stage</h2>
-  <div id="groups-container"></div>
+        <div class="tab-content" id="groupsTab">
+            <div class="card">
+                <h2>Group Stage (Double Round-Robin)</h2>
+                <div class="groups-container" id="groupsContainer"></div>
+            </div>
+        </div>
 
-  <h2>Playoffs</h2>
-  <div id="playoffs-container"></div>
+        <div class="tab-content" id="playoffsTab">
+            <div class="card">
+                <h2>Playoff Matches (2nd vs 3rd)</h2>
+                <div id="playoffsContainer"></div>
+            </div>
+        </div>
 
-  <h2>Knockout</h2>
-  <div id="knockout-container"></div>
+        <div class="tab-content" id="knockoutTab">
+            <div class="card">
+                <h2>Knockout Stage (Two-Legged Ties)</h2>
+                <div class="bracket" id="bracket"></div>
+            </div>
+        </div>
 
-  <h2>Golden Match</h2>
-  <div id="golden-match-container"></div>
+        <div class="tab-content" id="statsTab">
+            <div class="card">
+                <h2>Top Scorers</h2>
+                <table id="topScorers">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Player</th>
+                            <th>Goals</th>
+                            <th>Assists</th>
+                            <th>Team</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            
+            <div class="card">
+                <h2>Tournament Standings</h2>
+                <table id="standings">
+                    <thead>
+                        <tr>
+                            <th>Pos</th>
+                            <th>Player</th>
+                            <th>Pld</th>
+                            <th>W</th>
+                            <th>D</th>
+                            <th>L</th>
+                            <th>GF</th>
+                            <th>GA</th>
+                            <th>GD</th>
+                            <th>Pts</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
 
-  <div id="leaderboard">
-    <h3>Golden Boot - Top Scorers</h3>
-    <table aria-label="Leaderboard">
-      <thead>
-        <tr>
-          <th>Player</th>
-          <th>Goals</th>
-        </tr>
-      </thead>
-      <tbody id="leaderboard-body"></tbody>
-    </table>
-  </div>
-</div>
+        <!-- Golden Match Modal -->
+        <div class="modal" id="goldenMatchModal">
+            <div class="modal-content">
+                <button class="close-modal">&times;</button>
+                <h2>Golden Match Required!</h2>
+                <p>The aggregate score is tied. Please play a golden match (extra time + penalties if needed).</p>
+                <div id="goldenMatchForm"></div>
+                <button id="submitGoldenMatch">Submit Golden Match Result</button>
+                <button id="cancelGoldenMatch">Cancel</button>
+            </div>
+        </div>
 
-<script>
-(() => {
-  const maxPlayers = 20;
-  const groupsCount = 4;
-  const playersInput = document.getElementById('player-name-input');
-  const addPlayerBtn = document.getElementById('add-player-btn');
-  const bulkPlayerTextarea = document.getElementById('bulk-player-names');
-  const addBulkPlayersBtn = document.getElementById('add-bulk-players-btn');
-  const playersUl = document.getElementById('players-ul');
-  const startTournamentBtn = document.getElementById('start-tournament-btn');
+        <!-- Trophy Animation -->
+        <div class="trophy" id="trophy">🏆</div>
 
-  const tournamentContainer = document.getElementById('tournament-container');
-  const groupsContainer = document.getElementById('groups-container');
-  const playoffsContainer = document.getElementById('playoffs-container');
-  const knockoutContainer = document.getElementById('knockout-container');
-  const goldenMatchContainer = document.getElementById('golden-match-container');
-  const leaderboardBody = document.getElementById('leaderboard-body');
+        <!-- Toast Notification -->
+        <div class="toast" id="toast"></div>
+    </div>
 
-  let players = [];
-  let groups = {};
-  let groupMatches = {}; // groupName => array of matches
-  let groupStandings = {}; // groupName => standings array
+    <script>
+        // Tournament Data Structure
+        const tournament = {
+            players: [],
+            groups: [],
+            matches: {
+                groupStage: [],
+                playoffs: [],
+                knockout: []
+            },
+            stats: {},
+            settings: {
+                groups: 4,
+                playersPerGroup: 4,
+                advanceDirect: 1,
+                advancePlayoff: 2,
+                goldenMatch: true
+            },
+            currentStage: 'setup'
+        };
 
-  let playoffsMatches = []; // Array of playoff match objects
-  let knockoutMatches = []; // Array of knockout match objects
-  let goldenMatch = null;
+        // DOM Elements
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const playerNameInput = document.getElementById('playerName');
+        const playerIGInput = document.getElementById('playerIG');
+        const playerFIFAIDInput = document.getElementById('playerFIFAID');
+        const addPlayerBtn = document.getElementById('addPlayer');
+        const bulkUpload = document.getElementById('bulkUpload');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const playersList = document.getElementById('playersList');
+        const playerCount = document.getElementById('playerCount');
+        const generateBtn = document.getElementById('generateTournament');
+        const groupsContainer = document.getElementById('groupsContainer');
+        const playoffsContainer = document.getElementById('playoffsContainer');
+        const bracketContainer = document.getElementById('bracket');
+        const topScorersTable = document.querySelector('#topScorers tbody');
+        const standingsTable = document.querySelector('#standings tbody');
+        const goldenMatchModal = document.getElementById('goldenMatchModal');
+        const goldenMatchForm = document.getElementById('goldenMatchForm');
+        const submitGoldenMatchBtn = document.getElementById('submitGoldenMatch');
+        const cancelGoldenMatchBtn = document.getElementById('cancelGoldenMatch');
+        const closeModalBtn = document.querySelector('.close-modal');
+        const toast = document.getElementById('toast');
+        const trophy = document.getElementById('trophy');
 
-  let topScorers = {};
-
-  // Helper utilities
-  function sanitizeName(name) {
-    return name.trim();
-  }
-
-  function arrayChunk(arr, n) {
-    const chunkSize = Math.ceil(arr.length / n);
-    const chunks = [];
-    for (let i = 0; i < n; i++) {
-      chunks.push(arr.slice(i * chunkSize, (i + 1) * chunkSize));
-    }
-    return chunks;
-  }
-
-  function createElement(tag, attrs = {}, children = []) {
-    const el = document.createElement(tag);
-    Object.entries(attrs).forEach(([k,v]) => {
-      if (k === 'class') {
-        el.className = v;
-      } else if (k === 'html') {
-        el.innerHTML = v;
-      } else {
-        el.setAttribute(k, v);
-      }
-    });
-    if (children && children.length) {
-      children.forEach(c => {
-        if(typeof c === 'string') {
-          el.appendChild(document.createTextNode(c));
-        } else {
-          el.appendChild(c);
-        }
-      });
-    }
-    return el;
-  }
-
-  // Add single player handler
-  addPlayerBtn.addEventListener('click', () => {
-    const name = sanitizeName(playersInput.value);
-    if (!name) return alert('Please enter a player name.');
-    if (players.length >= maxPlayers) return alert('Maximum 20 players allowed.');
-    if (players.includes(name)) return alert('Player already added.');
-    players.push(name);
-    playersInput.value = '';
-    renderPlayers();
-    updateStartBtn();
-  });
-
-  // Add bulk players handler
-  addBulkPlayersBtn.addEventListener('click', () => {
-    const bulkText = bulkPlayerTextarea.value;
-    if (!bulkText.trim()) {
-      return alert('Please enter at least one player name in the bulk input.');
-    }
-    const lines = bulkText.split('\n').map(l => sanitizeName(l)).filter(l => l !== '');
-    if (lines.length === 0) return alert('No valid player names found.');
-    if (players.length >= maxPlayers) return alert('Maximum 20 players already added.');
-    let addedCount = 0;
-    for (const name of lines) {
-      if (players.length >= maxPlayers) break;
-      if (!players.includes(name) && name) {
-        players.push(name);
-        addedCount++;
-      }
-    }
-    if (addedCount === 0) alert('No new unique player names were added.');
-    else alert(`${addedCount} player(s) added.`);
-    bulkPlayerTextarea.value = '';
-    renderPlayers();
-    updateStartBtn();
-  });
-
-  function renderPlayers() {
-    playersUl.innerHTML = '';
-    players.forEach((p, i) => {
-      const li = createElement('li', {}, [p]);
-      playersUl.appendChild(li);
-    });
-  }
-
-  function updateStartBtn() {
-    startTournamentBtn.disabled = players.length < 8; // Minimum 8 players to start reasonable tournament
-  }
-
-  // Start tournament: create groups
-  startTournamentBtn.addEventListener('click', () => {
-    if (players.length < 8) return alert('At least 8 players are needed to start the tournament.');
-    // Hide admin panel
-    document.getElementById('admin-panel').style.display = 'none';
-    tournamentContainer.style.display = '';
-
-    // Create groups
-    createGroups();
-    createGroupMatches();
-    renderGroups();
-    updateLeaderboard();
-
-    // Scroll to group stage
-    groupsContainer.scrollIntoView({behavior: 'smooth'});
-  });
-
-  function createGroups() {
-    groups = {};
-    const shuffledPlayers = [...players].sort(() => Math.random() - 0.5);
-    const chunks = arrayChunk(shuffledPlayers, groupsCount);
-    const groupNames = ['A', 'B', 'C', 'D'];
-
-    groupNames.forEach((gName, idx) => {
-      groups[gName] = chunks[idx] || [];
-    });
-  }
-
-  // Create group matches (2 rounds home and away)
-  function createGroupMatches() {
-    groupMatches = {};
-    for (const grp in groups) {
-      const gPlayers = groups[grp];
-      const matches = [];
-      for(let i=0;i<gPlayers.length;i++) {
-        for(let j=i+1;j<gPlayers.length;j++) {
-          // two legs: home - away
-          matches.push(createMatch(gPlayers[i], gPlayers[j], grp, 1));
-          matches.push(createMatch(gPlayers[j], gPlayers[i], grp, 2));
-        }
-      }
-      groupMatches[grp] = matches;
-      calculateGroupStandings(grp);
-    }
-  }
-
-  // Match object for group stage
-  function createMatch(home, away, group, round) {
-    return {
-      id: `${group}-${home}-${away}-R${round}`,
-      home,
-      away,
-      group,
-      round,
-      homeGoals: null,
-      awayGoals: null,
-      winner: null,
-      stage: 'group'
-    };
-  }
-
-  // Calculate standings for a group
-  function calculateGroupStandings(group) {
-    const playersInGroup = groups[group];
-    if (!playersInGroup) return;
-    // Initialize stats
-    let stats = {};
-    playersInGroup.forEach(p => {
-      stats[p] = {
-        played: 0,
-        won: 0,
-        draw: 0,
-        lost: 0,
-        gf: 0, // goals for
-        ga: 0, // goals against
-        gd: 0, // goal difference
-        points: 0,
-      };
-    });
-
-    const matches = groupMatches[group];
-    matches.forEach(m => {
-      if (m.homeGoals !== null && m.awayGoals !== null) {
-        stats[m.home].played++;
-        stats[m.away].played++;
-        stats[m.home].gf += m.homeGoals;
-        stats[m.home].ga += m.awayGoals;
-        stats[m.away].gf += m.awayGoals;
-        stats[m.away].ga += m.homeGoals;
-
-        if (m.homeGoals > m.awayGoals) {
-          stats[m.home].won++;
-          stats[m.away].lost++;
-          stats[m.home].points += 3;
-        } else if (m.homeGoals === m.awayGoals) {
-          stats[m.home].draw++;
-          stats[m.away].draw++;
-          stats[m.home].points += 1;
-          stats[m.away].points += 1;
-        } else {
-          stats[m.home].lost++;
-          stats[m.away].won++;
-          stats[m.away].points += 3;
-        }
-      }
-    });
-    // Calculate GD
-    Object.values(stats).forEach(s => {
-      s.gd = s.gf - s.ga;
-    });
-
-    // Convert to array and sort standings by points, gd, gf desc
-    let standings = Object.entries(stats).map(([player, s]) => ({
-      player,
-      ...s
-    }));
-    standings.sort((a,b) => {
-      if (b.points !== a.points) return b.points - a.points;
-      if (b.gd !== a.gd) return b.gd - a.gd;
-      return b.gf - a.gf;
-    });
-
-    groupStandings[group] = standings;
-  }
-
-  // Render groups and matches
-  function renderGroups() {
-    groupsContainer.innerHTML = '';
-
-    for (const grp in groups) {
-      const groupDiv = createElement('div', {class:'group', 'aria-label': `Group ${grp}`} );
-
-      const heading = createElement('h3', {}, [`Group ${grp}`]);
-      groupDiv.appendChild(heading);
-
-      // Standings table
-      const standingsTable = createElement('table', {'aria-label': `Group ${grp} Standings`});
-      const thead = createElement('thead');
-      thead.innerHTML = `
-        <tr>
-          <th>Pos</th><th>Player</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th>
-        </tr>`;
-      standingsTable.appendChild(thead);
-      const tbody = createElement('tbody');
-      const standings = groupStandings[grp] || [];
-      standings.forEach((st,i) => {
-        const tr = createElement('tr');
-        tr.innerHTML = `
-          <td>${i+1}</td>
-          <td>${st.player}</td>
-          <td>${st.played}</td>
-          <td>${st.won}</td>
-          <td>${st.draw}</td>
-          <td>${st.lost}</td>
-          <td>${st.gf}</td>
-          <td>${st.ga}</td>
-          <td>${st.gd}</td>
-          <td>${st.points}</td>`;
-        tbody.appendChild(tr);
-      });
-      standingsTable.appendChild(tbody);
-
-      groupDiv.appendChild(standingsTable);
-
-      // Matches table
-      const matchesDiv = createElement('div', {ariaLive:'polite'});
-      const matchesTable = createElement('table', {'aria-label': `Group ${grp} Matches`});
-      const mthead = createElement('thead');
-      mthead.innerHTML = `
-        <tr>
-          <th>Round</th>
-          <th>Home</th>
-          <th>Score</th>
-          <th>Away</th>
-          <th>Update</th>
-        </tr>`;
-      matchesTable.appendChild(mthead);
-      const mtbody = createElement('tbody');
-      (groupMatches[grp] || []).forEach(m => {
-        const tr = createElement('tr', {class:'match-row'});
-
-        const roundTd = createElement('td', {}, [`${m.round}`]);
-        const homeTd = createElement('td', {}, [m.home]);
-        // score inputs
-        const scoreTd = createElement('td', {class:'match-score'});
-        const homeInput = createElement('input', {type:'number', min:'0', max:'20', 'aria-label': `${m.home} goals in group match`});
-        homeInput.value = m.homeGoals === null ? '' : m.homeGoals;
-        const awayInput = createElement('input', {type:'number', min:'0', max:'20', 'aria-label': `${m.away} goals in group match`});
-        awayInput.value = m.awayGoals === null ? '' : m.awayGoals;
-
-        scoreTd.appendChild(homeInput);
-        scoreTd.appendChild(createElement('span', {style:'margin: 0 4px; font-weight: 700;'}, [' - ']));
-        scoreTd.appendChild(awayInput);
-
-        const awayTd = createElement('td', {}, [m.away]);
-        const updateBtn = createElement('button', {class:'small-btn', 'aria-label': `Update score for match ${m.home} vs ${m.away} round ${m.round}`}, ['Update']);
-        updateBtn.addEventListener('click', () => {
-          const hGoals = parseInt(homeInput.value);
-          const aGoals = parseInt(awayInput.value);
-          if (isNaN(hGoals) || isNaN(aGoals)) {
-            alert('Please enter valid numeric scores for both teams (0 or positive).');
-            return;
-          }
-          if (hGoals < 0 || aGoals < 0 || hGoals > 20 || aGoals > 20) {
-            alert('Scores must be between 0 and 20.');
-            return;
-          }
-
-          m.homeGoals = hGoals;
-          m.awayGoals = aGoals;
-
-          // Update top scorers
-          updateTopScorers(m.home, hGoals);
-          updateTopScorers(m.away, aGoals);
-
-          calculateGroupStandings(m.group);
-          renderGroups();
-          updateAdvancements();
-          renderPlayoffs();
-          renderKnockout();
-          renderGoldenMatch();
-          updateLeaderboard();
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTournament();
+            setupEventListeners();
         });
 
-        tr.appendChild(roundTd);
-        tr.appendChild(homeTd);
-        tr.appendChild(scoreTd);
-        tr.appendChild(awayTd);
-        tr.appendChild(createElement('td', {}, [updateBtn]));
-
-        mtbody.appendChild(tr);
-      });
-      matchesTable.appendChild(mtbody);
-      matchesDiv.appendChild(matchesTable);
-      groupDiv.appendChild(matchesDiv);
-
-      groupsContainer.appendChild(groupDiv);
-    }
-  }
-
-  // Track top scorers map: playerName => goals
-  function updateTopScorers(player, goals) {
-    // accumulate goals from group and knockout matches
-    topScorers[player] = (topScorers[player] || 0) + goals;
-  }
-
-  // After group stage ends, determine playoff qualifiers:
-  // For playoffs: 2nd and 3rd of each group => total 8 players
-  // Top 1 from groups go direct to knockout
-  let playoffPlayers = [];
-  let knockoutPlayers = [];
-
-  function updateAdvancements() {
-    playoffPlayers = [];
-    knockoutPlayers = [];
-
-    // 1. Top 1 group qualify knockout directly
-    // 2. 2nd and 3rd to playoff
-    for (const g in groupStandings) {
-      const stand = groupStandings[g];
-      if (!stand || stand.length < 3) continue;
-      knockoutPlayers.push(stand[0].player);
-      playoffPlayers.push(stand[1].player);
-      playoffPlayers.push(stand[2].player);
-    }
-
-    // If less than expected players, adjust
-    // In knockoutPlayers and playoffPlayers arrays
-  }
-
-  /* 
-   Playoff matches formation (2nd and 3rd of groups face off)
-   We'll pair them across groups as:
-   Group A 2nd vs Group B 3rd, Group B 2nd vs Group A 3rd,
-   Group C 2nd vs Group D 3rd, Group D 2nd vs Group C 3rd
-   Winners go to knockout round to join group winners.
-  */
-
-  playoffsMatches = [];
-
-  function createPlayoffMatches() {
-    playoffsMatches = [];
-    // Map for easier player lookup by group & position
-    // We'll build pairs as above
-    const groupNames = ['A','B','C','D'];
-    if (playoffPlayers.length < 8) return;
-
-    // Build a map by group => 2nd and 3rd
-    const posMap = {};
-    for (const g of groupNames) {
-      const stand = groupStandings[g];
-      if (!stand || stand.length < 3) continue;
-      posMap[g] = {
-        '2nd': stand[1].player,
-        '3rd': stand[2].player
-      };
-    }
-
-    // Pairings:
-    // A2 vs B3
-    // B2 vs A3
-    // C2 vs D3
-    // D2 vs C3
-    const pairs = [
-      [posMap['A']?.['2nd'], posMap['B']?.['3rd']],
-      [posMap['B']?.['2nd'], posMap['A']?.['3rd']],
-      [posMap['C']?.['2nd'], posMap['D']?.['3rd']],
-      [posMap['D']?.['2nd'], posMap['C']?.['3rd']]
-    ];
-
-    pairs.forEach((pair, i) => {
-      if(pair[0] && pair[1]) {
-        playoffsMatches.push(createKnockoutMatch(pair[0], pair[1], 'playoff', i+1));
-      }
-    });
-  }
-
-  // Knockout matches from group winners and playoff winners
-
-  knockoutMatches = [];
-
-  function prepareKnockoutMatches() {
-    knockoutMatches = [];
-    // 4 group winners + 4 playoff winners make 8 players in knockout quarter finals
-    // We'll match as:
-    // Group A winner vs Playoff match 4 winner
-    // Group B winner vs Playoff match 3 winner
-    // Group C winner vs Playoff match 2 winner
-    // Group D winner vs Playoff match 1 winner
-    const groupWinners = knockoutPlayers; // 4 players
-    if (groupWinners.length < 4) return;
-    if (playoffsMatches.length < 4) return;
-
-    // Get playoff winners from playoffsMatches if decided
-    const playoffWinners = playoffsMatches.map(m => {
-      // Determine winner aggregate if legs played
-      if (m.aggregates.home > m.aggregates.away) return m.home;
-      if (m.aggregates.home < m.aggregates.away) return m.away;
-      return null; // if tie unresolved
-    });
-
-    // only proceed if all playoff winners known
-    if (playoffWinners.some(w => !w)) return;
-
-    // Match group winners with playoff winners as described
-    // Playoff matches reversed index for opponent
-    const pairs = [
-      [groupWinners[0], playoffWinners[3]],
-      [groupWinners[1], playoffWinners[2]],
-      [groupWinners[2], playoffWinners[1]],
-      [groupWinners[3], playoffWinners[0]],
-    ];
-
-    pairs.forEach((p, idx) => {
-      knockoutMatches.push(createKnockoutMatch(p[0], p[1], 'knockout', idx+1));
-    });
-  }
-
-  // Create knockout playoff or knockout match object (2 legs + golden match)
-  function createKnockoutMatch(home, away, stage, id) {
-    return {
-      id: `${stage}-match${id}`,
-      home,
-      away,
-      stage,
-      leg1: { homeGoals: null, awayGoals: null },
-      leg2: { homeGoals: null, awayGoals: null },
-      goldenMatch: { homeGoals: null, awayGoals: null },
-      aggregates: { home: 0, away: 0 },
-      winner: null,
-    };
-  }
-
-  // Render playoffs matches
-  function renderPlayoffs() {
-    createPlayoffMatches();
-    playoffsContainer.innerHTML = '';
-    if (playoffsMatches.length === 0) {
-      playoffsContainer.innerHTML = '<p>Playoff matches will appear here after group stage.</p>';
-      return;
-    }
-    playoffsContainer.innerHTML = '<p>Top 2nd and 3rd place from each group compete here for knockout advancement.</p>';
-    playoffsMatches.forEach(match => {
-      const wrapper = createElement('div', {class:'group'});
-      const heading = createElement('h3', {}, [`Playoff Match ${playoffsMatches.indexOf(match)+1}`]);
-      wrapper.appendChild(heading);
-
-      const table = createElement('table', {'aria-label': `Playoff match ${match.home} vs ${match.away}`});
-      const thead = createElement('thead');
-      thead.innerHTML = `
-        <tr>
-          <th>Leg</th><th>Home</th><th>Score</th><th>Away</th><th>Update</th>
-        </tr>`;
-      table.appendChild(thead);
-      const tbody = createElement('tbody');
-
-      // Leg 1 row
-      tbody.appendChild(createKnockoutMatchRow(match, 'leg1', 1));
-      tbody.appendChild(createKnockoutMatchRow(match, 'leg2', 2));
-
-      // Golden match row if needed
-      if (match.winner === null && match.aggregates.home === match.aggregates.away
-         && match.leg1.homeGoals !== null && match.leg1.awayGoals !== null
-         && match.leg2.homeGoals !== null && match.leg2.awayGoals !== null) {
-        tbody.appendChild(createKnockoutGoldenMatchRow(match));
-      }
-
-      // Winner row
-      const winnerRow = createElement('tr');
-      const winnerCell = createElement('td', {colspan: '5', style: 'text-align:center; font-weight: 700; margin-top: 10px; color:'+(match.winner ? 'var(--ucl-gold)' : 'inherit')});
-      winnerCell.textContent = match.winner ? `Winner: ${match.winner}` : 'Winner: TBD';
-      winnerRow.appendChild(winnerCell);
-      tbody.appendChild(winnerRow);
-
-      table.appendChild(tbody);
-      wrapper.appendChild(table);
-      playoffsContainer.appendChild(wrapper);
-    });
-  }
-
-  // Render knockout matches (same as playoffs)
-  function renderKnockout() {
-    knockoutContainer.innerHTML = '';
-    if (knockoutMatches.length === 0) {
-      knockoutContainer.innerHTML = '<p>Knockout matches will appear here after playoffs are decided.</p>';
-      return;
-    }
-    knockoutContainer.innerHTML = '<p>Knockout stage with group winners and playoff winners</p>';
-
-    knockoutMatches.forEach(match => {
-      const wrapper = createElement('div', {class:'group'});
-      const heading = createElement('h3', {}, [`Knockout Match ${knockoutMatches.indexOf(match)+1}`]);
-      wrapper.appendChild(heading);
-
-      const table = createElement('table', {'aria-label': `Knockout match ${match.home} vs ${match.away}`});
-      const thead = createElement('thead');
-      thead.innerHTML = `
-        <tr>
-          <th>Leg</th><th>Home</th><th>Score</th><th>Away</th><th>Update</th>
-        </tr>`;
-      table.appendChild(thead);
-      const tbody = createElement('tbody');
-
-      tbody.appendChild(createKnockoutMatchRow(match, 'leg1', 1));
-      tbody.appendChild(createKnockoutMatchRow(match, 'leg2', 2));
-
-      if (match.winner === null && match.aggregates.home === match.aggregates.away
-         && match.leg1.homeGoals !== null && match.leg1.awayGoals !== null
-         && match.leg2.homeGoals !== null && match.leg2.awayGoals !== null) {
-        tbody.appendChild(createKnockoutGoldenMatchRow(match));
-      }
-
-      const winnerRow = createElement('tr');
-      const winnerCell = createElement('td', {colspan: '5', style: 'text-align:center; font-weight: 700; color:'+(match.winner ? 'var(--ucl-gold)' : 'inherit')});
-      winnerCell.textContent = match.winner ? `Winner: ${match.winner}` : 'Winner: TBD';
-      winnerRow.appendChild(winnerCell);
-      tbody.appendChild(winnerRow);
-
-      table.appendChild(tbody);
-      wrapper.appendChild(table);
-      knockoutContainer.appendChild(wrapper);
-    });
-  }
-
-  // Create row for knockout/playoff leg match
-  function createKnockoutMatchRow(match, legKey, legNum) {
-    const legInfo = match[legKey];
-    const tr = createElement('tr');
-
-    const legTd = createElement('td', {}, [`Leg ${legNum}`]);
-    const homeTd = createElement('td', {}, [match.home]);
-    const scoreTd = createElement('td', {class:'match-score'});
-
-    const homeInput = createElement('input', {type:'number', min:'0', max:'20', 'aria-label': `Home goals leg ${legNum} in ${match.home} vs ${match.away}`});
-    homeInput.value = legInfo.homeGoals === null ? '' : legInfo.homeGoals;
-    const awayInput = createElement('input', {type:'number', min:'0', max:'20', 'aria-label': `Away goals leg ${legNum} in ${match.home} vs ${match.away}`});
-    awayInput.value = legInfo.awayGoals === null ? '' : legInfo.awayGoals;
-
-    scoreTd.appendChild(homeInput);
-    scoreTd.appendChild(createElement('span', {style:'margin: 0 4px; font-weight:700;'}, [' - ']));
-    scoreTd.appendChild(awayInput);
-
-    const awayTd = createElement('td', {}, [match.away]);
-    const updateBtn = createElement('button', {class:'small-btn', 'aria-label': `Update score leg ${legNum} for ${match.home} vs ${match.away}`}, ['Update']);
-
-    updateBtn.addEventListener('click', () => {
-      const hGoals = parseInt(homeInput.value);
-      const aGoals = parseInt(awayInput.value);
-
-      if (isNaN(hGoals) || isNaN(aGoals)) {
-        alert('Please enter valid numeric scores for both teams (0 or positive).');
-        return;
-      }
-      if (hGoals < 0 || aGoals < 0 || hGoals > 20 || aGoals > 20) {
-        alert('Scores must be between 0 and 20.');
-        return;
-      }
-
-      // We must subtract previously added goals from top scorers
-      subtractGoalsFromTopScorers(match.home, legInfo.homeGoals);
-      subtractGoalsFromTopScorers(match.away, legInfo.awayGoals);
-
-      legInfo.homeGoals = hGoals;
-      legInfo.awayGoals = aGoals;
-
-      // Add new goals to top scorers
-      updateTopScorers(match.home, hGoals);
-      updateTopScorers(match.away, aGoals);
-
-      calculateKnockoutWinner(match);
-      renderPlayoffs();
-      renderKnockout();
-      renderGoldenMatch();
-      updateLeaderboard();
-    });
-
-    tr.appendChild(legTd);
-    tr.appendChild(homeTd);
-    tr.appendChild(scoreTd);
-    tr.appendChild(awayTd);
-    tr.appendChild(createElement('td', {}, [updateBtn]));
-
-    return tr;
-  }
-
-  // Create row for golden match in knockout or playoff
-  function createKnockoutGoldenMatchRow(match) {
-    const tr = createElement('tr');
-
-    const legTd = createElement('td', {}, ['Golden Match']);
-    const homeTd = createElement('td', {}, [match.home]);
-    const scoreTd = createElement('td', {class:'match-score'});
-
-    const homeInput = createElement('input', {type:'number', min:'0', max:'20', 'aria-label': `Golden match home goals for ${match.home}`});
-    homeInput.value = match.goldenMatch.homeGoals === null ? '' : match.goldenMatch.homeGoals;
-    const awayInput = createElement('input', {type:'number', min:'0', max:'20', 'aria-label': `Golden match away goals for ${match.away}`});
-    awayInput.value = match.goldenMatch.awayGoals === null ? '' : match.goldenMatch.awayGoals;
-
-    scoreTd.appendChild(homeInput);
-    scoreTd.appendChild(createElement('span', {style:'margin: 0 4px; font-weight:700;'}, [' - ']));
-    scoreTd.appendChild(awayInput);
-
-    const awayTd = createElement('td', {}, [match.away]);
-    const updateBtn = createElement('button', {class:'small-btn', 'aria-label': `Update golden match score for ${match.home} vs ${match.away}`}, ['Update']);
-
-    updateBtn.addEventListener('click', () => {
-      const hGoals = parseInt(homeInput.value);
-      const aGoals = parseInt(awayInput.value);
-
-      if (isNaN(hGoals) || isNaN(aGoals)) {
-        alert('Please enter valid numeric scores for both teams (0 or positive).');
-        return;
-      }
-      if (hGoals < 0 || aGoals < 0 || hGoals > 20 || aGoals > 20) {
-        alert('Scores must be between 0 and 20.');
-        return;
-      }
-
-      // We must subtract previously added goals from top scorers
-      subtractGoalsFromTopScorers(match.home, match.goldenMatch.homeGoals);
-      subtractGoalsFromTopScorers(match.away, match.goldenMatch.awayGoals);
-
-      match.goldenMatch.homeGoals = hGoals;
-      match.goldenMatch.awayGoals = aGoals;
-
-      // Add new goals to top scorers
-      updateTopScorers(match.home, hGoals);
-      updateTopScorers(match.away, aGoals);
-
-      // Determine winner from golden match
-      if (hGoals > aGoals) {
-        match.winner = match.home;
-      } else if (aGoals > hGoals) {
-        match.winner = match.away;
-      } else {
-        match.winner = null; // draw in golden match not allowed logically but handled
-      }
-
-      renderPlayoffs();
-      renderKnockout();
-      renderGoldenMatch();
-      updateLeaderboard();
-    });
-
-    tr.appendChild(legTd);
-    tr.appendChild(homeTd);
-    tr.appendChild(scoreTd);
-    tr.appendChild(awayTd);
-    tr.appendChild(createElement('td', {}, [updateBtn]));
-
-    return tr;
-  }
-
-  // Calculate knockout or playoff match winner based on aggregates and golden match
-  function calculateKnockoutWinner(match) {
-    if (match.leg1.homeGoals === null || match.leg1.awayGoals === null) return;
-    if (match.leg2.homeGoals === null || match.leg2.awayGoals === null) return;
-    // Aggregate scores
-    // Aggregate rules: leg1 homeGoals + leg2 awayGoals for home; leg1 awayGoals + leg2 homeGoals for away
-    const aggHome = match.leg1.homeGoals + match.leg2.awayGoals;
-    const aggAway = match.leg1.awayGoals + match.leg2.homeGoals;
-    match.aggregates.home = aggHome;
-    match.aggregates.away = aggAway;
-
-    if (aggHome > aggAway) {
-      match.winner = match.home;
-    } else if (aggAway > aggHome) {
-      match.winner = match.away;
-    } else {
-      // Tie aggregate, check golden match if played
-      if (match.goldenMatch.homeGoals === null || match.goldenMatch.awayGoals === null) {
-        match.winner = null;
-      } else {
-        if (match.goldenMatch.homeGoals > match.goldenMatch.awayGoals) match.winner = match.home;
-        else if (match.goldenMatch.awayGoals > match.goldenMatch.homeGoals) match.winner = match.away;
-        else match.winner = null;
-      }
-    }
-
-    // If knockout, after all playoff winners known create knockout matches
-    if (match.stage === 'playoff') {
-      const allWinnersKnown = playoffsMatches.every(m => m.winner !== null);
-      if (allWinnersKnown) {
-        prepareKnockoutMatches();
-        renderKnockout();
-      }
-    }
-
-    if (match.stage === 'knockout') {
-      // TODO: Could add next rounds here for extended tournament, but limited scope for now
-    }
-  }
-
-  // Subtract previously added goals from top scorers (for knockout legs/golden)
-  function subtractGoalsFromTopScorers(player, goals) {
-    if (player && goals !== null && topScorers[player]) {
-      topScorers[player] -= goals;
-      if (topScorers[player] < 0) topScorers[player] = 0;
-    }
-  }
-
-  function renderGoldenMatch() {
-    goldenMatchContainer.innerHTML = '';
-    // Additional global golden match not needed, handled inside playoff/knockout match rows
-    // Just placeholder for clarity
-  }
-
-  // Update leaderboard
-  function updateLeaderboard() {
-    // Sort topScorers by descending goals
-    const sorted = Object.entries(topScorers).sort((a,b) => b[1]-a[1]);
-    leaderboardBody.innerHTML = '';
-    sorted.forEach(([player, goals]) => {
-      const tr = createElement('tr');
-      tr.innerHTML = `<td>${player}</td><td>${goals}</td>`;
-      leaderboardBody.appendChild(tr);
-    });
-  }
-
-})()
-</script>
+        // Set up all event listeners
+        function setupEventListeners() {
+            // Tab Switching
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    tab.classList.add('active');
+                    document.getElementById(`${tab.dataset.tab}Tab`).classList.add('active');
+                    
+                    // Save state to localStorage
+                    localStorage.setItem('activeTab', tab.dataset.tab);
+                });
+            });
+
+            // Add Player
+            addPlayerBtn.addEventListener('click', addPlayer);
+
+            // Bulk Upload
+            uploadBtn.addEventListener('click', handleBulkUpload);
+
+            // Generate Tournament
+            generateBtn.addEventListener('click', generateTournament);
+
+            // Golden Match Modal
+            submitGoldenMatchBtn.addEventListener('click', submitGoldenMatch);
+            cancelGoldenMatchBtn.addEventListener('click', closeGoldenMatchModal);
+            closeModalBtn.addEventListener('click', closeGoldenMatchModal);
+
+            // Close modal when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target === goldenMatchModal) {
+                    closeGoldenMatchModal();
+                }
+            });
+        }
+
+        // Load tournament data from localStorage
+        function loadTournament() {
+            const savedData = localStorage.getItem('fifaTournament');
+            if (savedData) {
+                try {
+                    const data = JSON.parse(savedData);
+                    Object.assign(tournament, data);
+                    renderPlayerList();
+                    
+                    if (tournament.groups.length > 0) {
+                        renderGroups();
+                        renderPlayoffs();
+                        renderBracket();
+                        renderStats();
+                    }
+
+                    showToast('Tournament data loaded successfully!');
+                } catch (e) {
+                    console.error('Error loading tournament data:', e);
+                    showToast('Error loading saved data', 'error');
+                }
+            }
+
+            // Load active tab
+            const activeTab = localStorage.getItem('activeTab') || 'setup';
+            document.querySelector(`.tab[data-tab="${activeTab}"]`).click();
+        }
+
+        // Save tournament data to localStorage
+        function saveTournament() {
+            try {
+                localStorage.setItem('fifaTournament', JSON.stringify(tournament));
+            } catch (e) {
+                console.error('Error saving tournament data:', e);
+                showToast('Error saving tournament data', 'error');
+            }
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            toast.textContent = message;
+            toast.style.backgroundColor = type === 'success' ? 'var(--ucl-blue)' : 
+                                          type === 'error' ? 'var(--ucl-red)' : 'var(--ucl-gold)';
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        // Show trophy animation
+        function showTrophy() {
+            trophy.style.display = 'block';
+            setTimeout(() => {
+                trophy.style.display = 'none';
+            }, 3000);
+        }
+
+        // Add a new player
+        function addPlayer() {
+            const name = playerNameInput.value.trim();
+            const ig = playerIGInput.value.trim().replace('@', '');
+            const fifaId = playerFIFAIDInput.value.trim();
+
+            if (!name || !ig || !fifaId) {
+                showToast('Please fill all fields!', 'error');
+                return;
+            }
+
+            // Check for duplicate FIFA ID
+            if (tournament.players.some(p => p.fifaId.toLowerCase() === fifaId.toLowerCase())) {
+                showToast('This FIFA ID is already registered!', 'error');
+                return;
+            }
+
+            // Add player
+            const newPlayer = {
+                id: Date.now().toString(),
+                name,
+                ig,
+                fifaId,
+                goals: 0,
+                assists: 0,
+                wins: 0,
+                draws: 0,
+                losses: 0,
+                points: 0,
+                goalDifference: 0
+            };
+
+            tournament.players.push(newPlayer);
+            renderPlayerList();
+            saveTournament();
+
+            // Clear inputs
+            playerNameInput.value = '';
+            playerIGInput.value = '';
+            playerFIFAIDInput.value = '';
+            playerNameInput.focus();
+
+            showToast(`${name} added successfully!`);
+        }
+
+        // Handle bulk upload of players
+        function handleBulkUpload() {
+            const file = bulkUpload.files[0];
+            if (!file) {
+                showToast('Please select a file first!', 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const content = e.target.result;
+                    const lines = content.split('\n').filter(line => line.trim());
+                    
+                    // Skip header if exists
+                    const startLine = lines[0].toLowerCase().includes('name') ? 1 : 0;
+                    let addedCount = 0;
+                    
+                    for (let i = startLine; i < lines.length; i++) {
+                        const [name, ig, fifaId] = lines[i].split(',').map(item => item.trim());
+                        if (name && ig && fifaId) {
+                            // Check for duplicates
+                            if (!tournament.players.some(p => p.fifaId.toLowerCase() === fifaId.toLowerCase())) {
+                                tournament.players.push({
+                                    id: Date.now().toString() + i,
+                                    name,
+                                    ig: ig.replace('@', ''),
+                                    fifaId,
+                                    goals: 0,
+                                    assists: 0,
+                                    wins: 0,
+                                    draws: 0,
+                                    losses: 0,
+                                    points: 0,
+                                    goalDifference: 0
+                                });
+                                addedCount++;
+                            }
+                        }
+                    }
+                    
+                    renderPlayerList();
+                    saveTournament();
+                    showToast(`${addedCount} players added from file!`);
+                    
+                } catch (e) {
+                    console.error('Error processing file:', e);
+                    showToast('Error processing the file. Please check the format.', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Render player list
+        function renderPlayerList() {
+            playersList.innerHTML = '';
+            
+            if (tournament.players.length === 0) {
+                playersList.innerHTML = '<tr><td colspan="4">No players added yet</td></tr>';
+                playerCount.textContent = '0';
+                return;
+            }
+
+            tournament.players.forEach(player => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${player.name}</td>
+                    <td>@${player.ig}</td>
+                    <td>${player.fifaId}</td>
+                    <td><button class="delete-player" data-id="${player.id}">Delete</button></td>
+                `;
+                playersList.appendChild(row);
+            });
+
+            // Update count
+            playerCount.textContent = tournament.players.length;
+
+            // Add delete handlers
+            document.querySelectorAll('.delete-player').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const playerId = this.getAttribute('data-id');
+                    const player = tournament.players.find(p => p.id === playerId);
+                    
+                    if (confirm(`Are you sure you want to remove ${player.name}?`)) {
+                        tournament.players = tournament.players.filter(p => p.id !== playerId);
+                        renderPlayerList();
+                        saveTournament();
+                        showToast(`${player.name} removed from tournament`);
+                    }
+                });
+            });
+        }
+
+        // Generate tournament groups
+        function generateTournament() {
+            if (tournament.players.length < 16) {
+                showToast('You need exactly 16 players to generate this tournament!', 'error');
+                return;
+            }
+
+            // Reset previous tournament data
+            tournament.groups = [];
+            tournament.matches = {
+                groupStage: [],
+                playoffs: [],
+                knockout: []
+            };
+            tournament.currentStage = 'groups';
+
+            // Create groups
+            createGroups();
+            
+            // Generate group stage matches
+            generateGroupMatches();
+            
+            // Render everything
+            renderGroups();
+            
+            // Save and switch to groups tab
+            saveTournament();
+            document.querySelector('.tab[data-tab="groups"]').click();
+            
+            showToast('Tournament generated successfully!');
+            showTrophy();
+        }
+
+        // Create balanced groups
+        function createGroups() {
+            // Shuffle players randomly
+            const shuffledPlayers = [...tournament.players].sort(() => 0.5 - Math.random());
+            
+            // Create 4 groups
+            for (let i = 0; i < 4; i++) {
+                const groupPlayers = shuffledPlayers.slice(i * 4, (i + 1) * 4);
+                
+                tournament.groups.push({
+                    id: `group-${i}`,
+                    name: `Group ${String.fromCharCode(65 + i)}`,
+                    players: groupPlayers.map(p => ({ 
+                        ...p, 
+                        groupGoals: 0,
+                        groupAssists: 0,
+                        groupWins: 0,
+                        groupDraws: 0,
+                        groupLosses: 0,
+                        groupPoints: 0,
+                        groupGD: 0 
+                    }))
+                });
+            }
+        }
+
+        // Generate group stage matches (double round-robin)
+        function generateGroupMatches() {
+            tournament.groups.forEach(group => {
+                const players = group.players;
+                
+                // Generate all possible unique pairings (home and away)
+                for (let i = 0; i < players.length; i++) {
+                    for (let j = i + 1; j < players.length; j++) {
+                        // Home match
+                        tournament.matches.groupStage.push({
+                            id: `match-${group.id}-${players[i].id}-${players[j].id}-1`,
+                            group: group.id,
+                            player1: players[i],
+                            player2: players[j],
+                            score1: null,
+                            score2: null,
+                            completed: false,
+                            leg: 'home',
+                            date: null
+                        });
+                        
+                        // Away match
+                        tournament.matches.groupStage.push({
+                            id: `match-${group.id}-${players[j].id}-${players[i].id}-2`,
+                            group: group.id,
+                            player1: players[j],
+                            player2: players[i],
+                            score1: null,
+                            score2: null,
+                            completed: false,
+                            leg: 'away',
+                            date: null
+                        });
+                    }
+                }
+            });
+        }
+
+        // Render groups and matches
+        function renderGroups() {
+            groupsContainer.innerHTML = '';
+            
+            if (tournament.groups.length === 0) {
+                groupsContainer.innerHTML = '<p>No groups generated yet. Please generate the tournament first.</p>';
+                return;
+            }
+
+            tournament.groups.forEach(group => {
+                const groupEl = document.createElement('div');
+                groupEl.className = 'group';
+                
+                // Sort players by group standings
+                group.players.sort((a, b) => {
+                    if (b.groupPoints !== a.groupPoints) return b.groupPoints - a.groupPoints;
+                    if (b.groupGD !== a.groupGD) return b.groupGD - a.groupGD;
+                    return b.groupGoals - a.groupGoals;
+                });
+                
+                // Group matches
+                const groupMatches = tournament.matches.groupStage.filter(m => m.group === group.id);
+                
+                // Group standings table
+                let standingsHTML = `
+                    <h3>${group.name}</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Pos</th>
+                                <th>Player</th>
+                                <th>Pld</th>
+                                <th>W</th>
+                                <th>D</th>
+                                <th>L</th>
+                                <th>GF</th>
+                                <th>GA</th>
+                                <th>GD</th>
+                                <th>Pts</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                group.players.forEach((player, index) => {
+                    const matchesPlayed = player.groupWins + player.groupDraws + player.groupLosses;
+                    const qualifyingClass = index < tournament.settings.advanceDirect ? 'qualifying' : 
+                                          index < tournament.settings.advanceDirect + tournament.settings.advancePlayoff ? 'playoff' : '';
+                    
+                    standingsHTML += `
+                        <tr class="${qualifyingClass}">
+                            <td>${index + 1}</td>
+                            <td>${player.name}</td>
+                            <td>${matchesPlayed}</td>
+                            <td>${player.groupWins}</td>
+                            <td>${player.groupDraws}</td>
+                            <td>${player.groupLosses}</td>
+                            <td>${player.groupGoals}</td>
+                            <td>${player.groupGoals - player.groupGD}</td>
+                            <td>${player.groupGD}</td>
+                            <td><strong>${player.groupPoints}</strong></td>
+                        </tr>
+                    `;
+                });
+                
+                standingsHTML += `</tbody></table>`;
+                
+                // Group matches
+                let matchesHTML = '<h4>Matches</h4>';
+                groupMatches.forEach(match => {
+                    const status = match.completed ? 
+                        `<span class="match-score">${match.score1}-${match.score2}</span>` : 
+                        '<span class="match-score">vs</span>';
+                    
+                    matchesHTML += `
+                        <div class="match">
+                            <div class="match-info">
+                                <span>${match.player1.name}</span>
+                                ${status}
+                                <span>${match.player2.name}</span>
+                            </div>
+                            ${!match.completed ? `
+                            <div class="match-actions">
+                                <input type="number" class="score-input" data-match-id="${match.id}" data-player="1" placeholder="Score" min="0">
+                                <input type="number" class="score-input" data-match-id="${match.id}" data-player="2" placeholder="Score" min="0">
+                                <button class="update-match" data-match-id="${match.id}">Update</button>
+                            </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+                
+                groupEl.innerHTML = standingsHTML + matchesHTML;
+                groupsContainer.appendChild(groupEl);
+            });
+            
+            // Add match update handlers
+            document.querySelectorAll('.update-match').forEach(btn => {
+                btn.addEventListener('click', updateGroupMatch);
+            });
+        }
+
+        // Update group match result
+        function updateGroupMatch(e) {
+            const matchId = e.target.getAttribute('data-match-id');
+            const match = tournament.matches.groupStage.find(m => m.id === matchId);
+            
+            const score1 = parseInt(document.querySelector(`.score-input[data-match-id="${matchId}"][data-player="1"]`).value);
+            const score2 = parseInt(document.querySelector(`.score-input[data-match-id="${matchId}"][data-player="2"]`).value);
+            
+            if (isNaN(score1) || score1 < 0) {
+                showToast('Please enter a valid score for Home Team', 'error');
+                return;
+            }
+            
+            if (isNaN(score2) || score2 < 0) {
+                showToast('Please enter a valid score for Away Team', 'error');
+                return;
+            }
+
+            // Update match
+            match.score1 = score1;
+            match.score2 = score2;
+            match.completed = true;
+            match.date = new Date().toISOString();
+            
+            // Update player stats
+            updateGroupPlayerStats(match, score1, score2);
+            
+            // Re-render groups and save
+            renderGroups();
+            saveTournament();
+            showToast('Match result updated!');
+            
+            // Check if all group matches are done to generate playoffs
+            const allGroupMatchesDone = tournament.matches.groupStage.every(m => m.completed);
+            if (allGroupMatchesDone) {
+                generatePlayoffs();
+                renderPlayoffs();
+                tournament.currentStage = 'playoffs';
+                saveTournament();
+                showToast('Group stage completed! Playoffs generated.', 'success');
+            }
+        }
+
+        // Update player stats for group matches
+        function updateGroupPlayerStats(match, score1, score2) {
+            const group = tournament.groups.find(g => g.id === match.group);
+            const player1 = group.players.find(p => p.id === match.player1.id);
+            const player2 = group.players.find(p => p.id === match.player2.id);
+            
+            // Goals
+            player1.groupGoals += score1;
+            player2.groupGoals += score2;
+            
+            // Goal difference
+            player1.groupGD += (score1 - score2);
+            player2.groupGD += (score2 - score1);
+            
+            // Points and wins/draws/losses
+            if (score1 > score2) {
+                player1.groupWins++;
+                player1.groupPoints += 3;
+                player2.groupLosses++;
+            } else if (score2 > score1) {
+                player2.groupWins++;
+                player2.groupPoints += 3;
+                player1.groupLosses++;
+            } else {
+                player1.groupDraws++;
+                player2.groupDraws++;
+                player1.groupPoints += 1;
+                player2.groupPoints += 1;
+            }
+            
+            // Update overall stats
+            updatePlayerStats(match.player1, match.player2, score1, score2);
+        }
+
+        // Update overall player stats
+        function updatePlayerStats(player1, player2, score1, score2) {
+            player1.goals += score1;
+            player2.goals += score2;
+            player1.goalDifference += (score1 - score2);
+            player2.goalDifference += (score2 - score1);
+            
+            if (score1 > score2) {
+                player1.wins++;
+                player1.points += 3;
+                player2.losses++;
+            } else if (score2 > score1) {
+                player2.wins++;
+                player2.points += 3;
+                player1.losses++;
+            } else {
+                player1.draws++;
+                player2.draws++;
+                player1.points += 1;
+                player2.points += 1;
+            }
+            
+            // Update stats display
+            renderStats();
+        }
+
+        // Generate playoff matches (2nd vs 3rd)
+        function generatePlayoffs() {
+            tournament.matches.playoffs = [];
+            
+            tournament.groups.forEach(group => {
+                // Sort players by group standings
+                group.players.sort((a, b) => {
+                    if (b.groupPoints !== a.groupPoints) return b.groupPoints - a.groupPoints;
+                    if (b.groupGD !== a.groupGD) return b.groupGD - a.groupGD;
+                    return b.groupGoals - a.groupGoals;
+                });
+                
+                // 2nd place team
+                const secondPlace = group.players[1];
+                // 3rd place team
+                const thirdPlace = group.players[2];
+                
+                tournament.matches.playoffs.push({
+                    id: `playoff-${group.id}`,
+                    group: group.id,
+                    player1: secondPlace,
+                    player2: thirdPlace,
+                    score1: null,
+                    score2: null,
+                    completed: false,
+                    winner: null,
+                    date: null
+                });
+            });
+        }
+
+        // Render playoff matches
+        function renderPlayoffs() {
+            playoffsContainer.innerHTML = '';
+            
+            if (tournament.matches.playoffs.length === 0) {
+                playoffsContainer.innerHTML = '<p>Playoff matches will be generated after group stage is completed</p>';
+                return;
+            }
+            
+            tournament.matches.playoffs.forEach(match => {
+                const matchEl = document.createElement('div');
+                matchEl.className = 'match';
+                
+                const status = match.completed ? 
+                    `<span class="match-score">${match.score1}-${match.score2}</span>` : 
+                    '<span class="match-score">vs</span>';
+                
+                matchEl.innerHTML = `
+                    <div class="match-info">
+                        <span>${match.player1.name} (2nd)</span>
+                        ${status}
+                        <span>${match.player2.name} (3rd)</span>
+                    </div>
+                    ${!match.completed ? `
+                    <div class="match-actions">
+                        <input type="number" class="score-input" data-match-id="${match.id}" data-player="1" placeholder="Score" min="0">
+                        <input type="number" class="score-input" data-match-id="${match.id}" data-player="2" placeholder="Score" min="0">
+                        <button class="update-playoff" data-match-id="${match.id}">Update</button>
+                    </div>
+                    ` : ''}
+                `;
+                
+                playoffsContainer.appendChild(matchEl);
+            });
+            
+            // Add playoff match update handlers
+            document.querySelectorAll('.update-playoff').forEach(btn => {
+                btn.addEventListener('click', updatePlayoffMatch);
+            });
+        }
+
+        // Update playoff match result
+        function updatePlayoffMatch(e) {
+            const matchId = e.target.getAttribute('data-match-id');
+            const match = tournament.matches.playoffs.find(m => m.id === matchId);
+            
+            const score1 = parseInt(document.querySelector(`.score-input[data-match-id="${matchId}"][data-player="1"]`).value);
+            const score2 = parseInt(document.querySelector(`.score-input[data-match-id="${matchId}"][data-player="2"]`).value);
+            
+            if (isNaN(score1) {
+                showToast('Please enter a valid score for Home Team', 'error');
+                return;
+            }
+            
+            if (isNaN(score2)) {
+                showToast('Please enter a valid score for Away Team', 'error');
+                return;
+            }
+
+            // Update match
+            match.score1 = score1;
+            match.score2 = score2;
+            match.completed = true;
+            match.winner = score1 > score2 ? match.player1 : match.player2;
+            match.date = new Date().toISOString();
+            
+            // Update player stats
+            updatePlayerStats(match.player1, match.player2, score1, score2);
+            
+            // Re-render playoffs and save
+            renderPlayoffs();
+            saveTournament();
+            showToast('Playoff match result updated!');
+            
+            // Check if all playoff matches are done to generate knockout stage
+            const allPlayoffsDone = tournament.matches.playoffs.every(m => m.completed);
+            if (allPlayoffsDone) {
+                generateKnockoutStage();
+                renderBracket();
+                tournament.currentStage = 'knockout';
+                saveTournament();
+                showToast('Playoffs completed! Knockout stage generated.', 'success');
+            }
+        }
+
+        // Generate knockout stage
+        function generateKnockoutStage() {
+            tournament.matches.knockout = [];
+            
+            // Get all qualifiers (1st place from each group)
+            const groupWinners = tournament.groups.flatMap(group => 
+                [group.players[0]]
+            );
+            
+            // Get playoff winners
+            const playoffWinners = tournament.matches.playoffs.map(match => match.winner);
+            
+            // Combine all quarter-finalists (4 group winners + 4 playoff winners)
+            const quarterFinalists = [...groupWinners, ...playoffWinners];
+            
+            // Simple bracket pairing (could implement seeding here)
+            for (let i = 0; i < quarterFinalists.length; i += 2) {
+                const team1 = quarterFinalists[i];
+                const team2 = quarterFinalists[i + 1];
+                
+                // First leg
+                tournament.matches.knockout.push({
+                    id: `qf-${i}-1`,
+                    round: 'quarter-final',
+                    player1: team1,
+                    player2: team2,
+                    score1: null,
+                    score2: null,
+                    completed: false,
+                    leg: 'first',
+                    date: null
+                });
+                
+                // Second leg
+                tournament.matches.knockout.push({
+                    id: `qf-${i}-2`,
+                    round: 'quarter-final',
+                    player1: team2,
+                    player2: team1,
+                    score1: null,
+                    score2: null,
+                    completed: false,
+                    leg: 'second',
+                    date: null
+                });
+            }
+        }
+
+        // Render knockout bracket
+        function renderBracket() {
+            bracketContainer.innerHTML = '';
+            
+            if (tournament.matches.knockout.length === 0) {
+                bracketContainer.innerHTML = '<p>Knockout stage will be generated after playoffs are completed</p>';
+                return;
+            }
+            
+            // Group matches by round
+            const rounds = {
+                'quarter-final': [],
+                'semi-final': [],
+                'final': []
+            };
+            
+            tournament.matches.knockout.forEach(match => {
+                if (rounds[match.round]) {
+                    rounds[match.round].push(match);
+                }
+            });
+            
+            // Render each round
+            for (const [roundName, matches] of Object.entries(rounds)) {
+                if (matches.length === 0) continue;
+                
+                const roundEl = document.createElement('div');
+                roundEl.className = 'round';
+                roundEl.innerHTML = `<h3>${roundName.replace('-', ' ').toUpperCase()}</h3>`;
+                
+                matches.forEach(match => {
+                    const status = match.completed ? 
+                        `<span class="match-score">${match.score1}-${match.score2}</span>` : 
+                        '<span class="match-score">vs</span>';
+                    
+                    const matchEl = document.createElement('div');
+                    matchEl.className = 'match';
+                    matchEl.innerHTML = `
+                        <div class="match-info">
+                            <span>${match.player1.name}</span>
+                            ${status}
+                            <span>${match.player2.name}</span>
+                        </div>
+                        <div class="match-meta">
+                            ${match.leg === 'second' ? '(2nd leg)' : '(1st leg)'}
+                            ${match.goldenMatch ? ` | Golden Match: ${match.goldenMatch.score1}-${match.goldenMatch.score2}` : ''}
+                        </div>
+                        ${!match.completed ? `
+                        <div class="match-actions">
+                            <input type="number" class="score-input" data-match-id="${match.id}" data-player="1" placeholder="Score" min="0">
+                            <input type="number" class="score-input" data-match-id="${match.id}" data-player="2" placeholder="Score" min="0">
+                            <button class="update-knockout" data-match-id="${match.id}">Update</button>
+                        </div>
+                        ` : ''}
+                    `;
+                    
+                    roundEl.appendChild(matchEl);
+                });
+                
+                bracketContainer.appendChild(roundEl);
+            }
+            
+            // Add knockout match update handlers
+            document.querySelectorAll('.update-knockout').forEach(btn => {
+                btn.addEventListener('click', updateKnockoutMatch);
+            });
+        }
+
+        // Update knockout match result
+        function updateKnockoutMatch(e) {
+            const matchId = e.target.getAttribute('data-match-id');
+            const match = tournament.matches.knockout.find(m => m.id === matchId);
+            
+            const score1 = parseInt(document.querySelector(`.score-input[data-match-id="${matchId}"][data-player="1"]`).value);
+            const score2 = parseInt(document.querySelector(`.score-input[data-match-id="${matchId}"][data-player="2"]`).value);
+            
+            if (isNaN(score1)) {
+                showToast('Please enter a valid score for Home Team', 'error');
+                return;
+            }
+            
+            if (isNaN(score2)) {
+                showToast('Please enter a valid score for Away Team', 'error');
+                return;
+            }
+
+            // Update match
+            match.score1 = score1;
+            match.score2 = score2;
+            match.completed = true;
+            match.date = new Date().toISOString();
+            
+            // Update player stats
+            updatePlayerStats(match.player1, match.player2, score1, score2);
+            
+            // Check if this is a second leg and we need to check aggregate
+            if (match.leg === 'second') {
+                const firstLegId = match.id.replace('-2', '-1');
+                const firstLeg = tournament.matches.knockout.find(m => m.id === firstLegId);
+                
+                if (firstLeg && firstLeg.completed) {
+                    const aggregate1 = firstLeg.score2 + score1; // Away goals for first leg
+                    const aggregate2 = firstLeg.score1 + score2; // Away goals for second leg
+                    
+                    // Check if aggregate is tied
+                    if (aggregate1 === aggregate2) {
+                        showGoldenMatchModal(match, aggregate1, aggregate2);
+                        return;
+                    }
+                }
+            }
+            
+            // Re-render bracket and save
+            renderBracket();
+            saveTournament();
+            showToast('Knockout match result updated!');
+            
+            // Check if we need to generate next round
+            checkAndGenerateNextRound();
+        }
+
+        // Show golden match modal
+        function showGoldenMatchModal(match, agg1, agg2) {
+            goldenMatchForm.innerHTML = `
+                <h3>${match.player1.name} vs ${match.player2.name}</h3>
+                <p>Aggregate score: ${agg1}-${agg2}</p>
+                <div class="input-group">
+                    <label>${match.player1.name} score:</label>
+                    <input type="number" id="goldenScore1" min="0" required>
+                </div>
+                <div class="input-group">
+                    <label>${match.player2.name} score:</label>
+                    <input type="number" id="goldenScore2" min="0" required>
+                </div>
+                <p><em>If still tied after golden match, please decide by penalties</em></p>
+            `;
+            
+            goldenMatchModal.style.display = 'flex';
+            goldenMatchModal.dataset.matchId = match.id;
+        }
+
+        // Submit golden match result
+        function submitGoldenMatch() {
+            const matchId = goldenMatchModal.dataset.matchId;
+            const match = tournament.matches.knockout.find(m => m.id === matchId);
+            
+            const score1 = parseInt(document.getElementById('goldenScore1').value);
+            const score2 = parseInt(document.getElementById('goldenScore2').value);
+            
+            if (isNaN(score1) || score1 < 0) {
+                showToast('Please enter a valid score for Home Team', 'error');
+                return;
+            }
+            
+            if (isNaN(score2) || score2 < 0) {
+                showToast('Please enter a valid score for Away Team', 'error');
+                return;
+            }
+
+            // Update match with golden match result
+            match.goldenMatch = {
+                score1,
+                score2,
+                date: new Date().toISOString()
+            };
+            
+            // Update player stats with golden match
+            updatePlayerStats(match.player1, match.player2, score1, score2);
+            
+            // Close modal
+            closeGoldenMatchModal();
+            
+            // Re-render bracket and save
+            renderBracket();
+            saveTournament();
+            showToast('Golden match result submitted!');
+            
+            // Check if we need to generate next round
+            checkAndGenerateNextRound();
+        }
+
+        // Close golden match modal
+        function closeGoldenMatchModal() {
+            goldenMatchModal.style.display = 'none';
+        }
+
+        // Check if we need to generate next knockout round
+        function checkAndGenerateNextRound() {
+            // This would check if all matches in current round are complete
+            // and generate the next round (semi-finals, final)
+            // Implementation would be similar to generateKnockoutStage()
+            // but for the next round
+        }
+
+        // Render statistics
+        function renderStats() {
+            renderTopScorers();
+            renderStandings();
+        }
+
+        // Render top scorers table
+        function renderTopScorers() {
+            topScorersTable.innerHTML = '';
+            
+            // Sort players by goals
+            const sortedScorers = [...tournament.players].sort((a, b) => {
+                if (b.goals !== a.goals) return b.goals - a.goals;
+                if (b.assists !== a.assists) return b.assists - a.assists;
+                return (b.wins / (b.wins + b.draws + b.losses)) - (a.wins / (a.wins + a.draws + a.losses));
+            });
+            
+            if (sortedScorers.length === 0) {
+                topScorersTable.innerHTML = '<tr><td colspan="5">No data available yet</td></tr>';
+                return;
+            }
+            
+            sortedScorers.forEach((player, index) => {
+                const row = document.createElement('tr');
+                if (index === 0) row.classList.add('winner');
+                
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${player.name} (@${player.ig})</td>
+                    <td>${player.goals}</td>
+                    <td>${player.assists}</td>
+                    <td>${getPlayerGroup(player.id) || '-'}</td>
+                `;
+                
+                topScorersTable.appendChild(row);
+            });
+        }
+
+        // Render tournament standings
+        function renderStandings() {
+            standingsTable.innerHTML = '';
+            
+            // Sort players by tournament performance
+            const sortedPlayers = [...tournament.players].sort((a, b) => {
+                if (b.points !== a.points) return b.points - a.points;
+                if (b.goalDifference !== a.goalDifference) return b.goalDifference - a.goalDifference;
+                return b.goals - a.goals;
+            });
+            
+            if (sortedPlayers.length === 0) {
+                standingsTable.innerHTML = '<tr><td colspan="10">No data available yet</td></tr>';
+                return;
+            }
+            
+            sortedPlayers.forEach((player, index) => {
+                const matchesPlayed = player.wins + player.draws + player.losses;
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${player.name}</td>
+                    <td>${matchesPlayed}</td>
+                    <td>${player.wins}</td>
+                    <td>${player.draws}</td>
+                    <td>${player.losses}</td>
+                    <td>${player.goals}</td>
+                    <td>${player.goals - player.goalDifference}</td>
+                    <td>${player.goalDifference}</td>
+                    <td><strong>${player.points}</strong></td>
+                `;
+                
+                standingsTable.appendChild(row);
+            });
+        }
+
+        // Helper function to get player's group
+        function getPlayerGroup(playerId) {
+            for (const group of tournament.groups) {
+                const player = group.players.find(p => p.id === playerId);
+                if (player) return group.name;
+            }
+            return null;
+        }
+    </script>
 </body>
 </html>
