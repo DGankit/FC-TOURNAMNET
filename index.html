@@ -143,6 +143,14 @@
             box-shadow: none;
         }
 
+        .save-match {
+            background-color: var(--ucl-green);
+        }
+
+        .reset-match {
+            background-color: var(--ucl-red);
+        }
+
         input, select, textarea {
             padding: 10px;
             border-radius: 5px;
@@ -190,7 +198,7 @@
 
         .groups-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: 1fr 1fr;
             gap: 20px;
         }
 
@@ -245,7 +253,14 @@
 
         .match-actions {
             display: flex;
+            flex-direction: column;
             gap: 10px;
+        }
+
+        .match-buttons {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
         }
 
         .score-input {
@@ -341,10 +356,12 @@
                 border-radius: 5px;
             }
             
-            .groups-container, .stats-container {
-                display: grid;
-            grid-template-columns: 1fr 1fr; /* Two columns side by side */
-            gap: 20px;
+            .groups-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .match-buttons {
+                flex-direction: column;
             }
         }
     </style>
@@ -1050,7 +1067,15 @@
                 groupsContainer.appendChild(groupPair);
             }
             
-            // Add match update handlers
+            // Add match button handlers
+            document.querySelectorAll('.save-match').forEach(btn => {
+                btn.addEventListener('click', (e) => saveMatchScores(e.target.getAttribute('data-match-id')));
+            });
+
+            document.querySelectorAll('.reset-match').forEach(btn => {
+                btn.addEventListener('click', (e) => resetMatchScores(e.target.getAttribute('data-match-id')));
+            });
+
             document.querySelectorAll('.update-match').forEach(btn => {
                 btn.addEventListener('click', updateGroupMatch);
             });
@@ -1123,9 +1148,15 @@
                         </div>
                         ${!match.completed ? `
                         <div class="match-actions">
-                            <input type="number" class="score-input" data-match-id="${match.id}" data-player="1" placeholder="Score" min="0">
-                            <input type="number" class="score-input" data-match-id="${match.id}" data-player="2" placeholder="Score" min="0">
-                            <button class="update-match" data-match-id="${match.id}">Update</button>
+                            <input type="number" class="score-input" data-match-id="${match.id}" data-player="1" 
+                                   placeholder="Score" min="0" value="${match.score1 || ''}">
+                            <input type="number" class="score-input" data-match-id="${match.id}" data-player="2" 
+                                   placeholder="Score" min="0" value="${match.score2 || ''}">
+                            <div class="match-buttons">
+                                <button class="save-match" data-match-id="${match.id}">Save</button>
+                                <button class="reset-match" data-match-id="${match.id}">Reset</button>
+                                <button class="update-match" data-match-id="${match.id}">Update</button>
+                            </div>
                         </div>
                         ` : ''}
                     </div>
@@ -1136,21 +1167,13 @@
             groupEl.innerHTML = standingsHTML + matchesHTML;
             return groupEl;
         }
-            
-            // Add match update handlers
-            document.querySelectorAll('.update-match').forEach(btn => {
-                btn.addEventListener('click', updateGroupMatch);
-            });
-        
 
-        // Update group match result
-        function updateGroupMatch(e) {
-            const matchId = e.target.getAttribute('data-match-id');
+        // Save match scores without completing the match
+        function saveMatchScores(matchId) {
             const match = tournament.matches.groupStage.find(m => m.id === matchId);
-            
             const score1 = parseInt(document.querySelector(`.score-input[data-match-id="${matchId}"][data-player="1"]`).value);
             const score2 = parseInt(document.querySelector(`.score-input[data-match-id="${matchId}"][data-player="2"]`).value);
-            
+
             if (isNaN(score1)) {
                 showToast('Please enter a valid score for Home Team', 'error');
                 return;
@@ -1158,6 +1181,45 @@
             
             if (isNaN(score2)) {
                 showToast('Please enter a valid score for Away Team', 'error');
+                return;
+            }
+
+            // Save scores but don't mark as completed
+            match.score1 = score1;
+            match.score2 = score2;
+            saveTournament();
+            showToast('Scores saved (not finalized)');
+        }
+
+        // Reset match scores
+        function resetMatchScores(matchId) {
+            const match = tournament.matches.groupStage.find(m => m.id === matchId);
+            
+            // Reset input fields
+            document.querySelector(`.score-input[data-match-id="${matchId}"][data-player="1"]`).value = '';
+            document.querySelector(`.score-input[data-match-id="${matchId}"][data-player="2"]`).value = '';
+            
+            // Reset saved scores
+            match.score1 = null;
+            match.score2 = null;
+            saveTournament();
+            showToast('Scores reset');
+        }
+
+        // Update group match result
+        function updateGroupMatch(e) {
+            const matchId = e.target.getAttribute('data-match-id');
+            const match = tournament.matches.groupStage.find(m => m.id === matchId);
+            
+            // Use saved scores if inputs are empty
+            let score1 = parseInt(document.querySelector(`.score-input[data-match-id="${matchId}"][data-player="1"]`).value);
+            let score2 = parseInt(document.querySelector(`.score-input[data-match-id="${matchId}"][data-player="2"]`).value);
+            
+            if (isNaN(score1)) score1 = match.score1 || 0;
+            if (isNaN(score2)) score2 = match.score2 || 0;
+            
+            if (isNaN(score1) || isNaN(score2)) {
+                showToast('Please enter valid scores for both teams', 'error');
                 return;
             }
 
@@ -1572,6 +1634,11 @@
                 const winner = finalMatch.score1 > finalMatch.score2 ? finalMatch.player1 : finalMatch.player2;
                 showToast(`Tournament completed! ${winner.name} is the champion!`, 'success');
                 showTrophy();
+                
+                // Add a confirmation to reset stats
+                if (confirm('Tournament completed! Would you like to reset all stats for a new tournament?')) {
+                    resetTournamentStats();
+                }
             }
         }
 
@@ -1675,6 +1742,57 @@
                     date: null
                 });
             }
+        }
+
+        // Reset all tournament stats while keeping players
+        function resetTournamentStats() {
+            // Reset player stats
+            tournament.players.forEach(player => {
+                player.goals = 0;
+                player.assists = 0;
+                player.wins = 0;
+                player.draws = 0;
+                player.losses = 0;
+                player.points = 0;
+                player.goalDifference = 0;
+                player.matchesPlayed = 0;
+                
+                // Reset group-specific stats if they exist
+                if (player.groupGoals !== undefined) {
+                    player.groupGoals = 0;
+                    player.groupWins = 0;
+                    player.groupDraws = 0;
+                    player.groupLosses = 0;
+                    player.groupPoints = 0;
+                    player.groupGD = 0;
+                }
+            });
+
+            // Reset all matches
+            tournament.matches = {
+                groupStage: [],
+                playoffs: [],
+                knockout: []
+            };
+
+            // Reset groups
+            tournament.groups = [];
+            
+            // Reset current stage
+            tournament.currentStage = 'setup';
+            
+            // Save the reset state
+            saveTournament();
+            
+            // Re-render everything
+            renderPlayerList();
+            renderGroups();
+            renderPlayoffs();
+            renderBracket();
+            renderStandings();
+            renderTopScorers();
+            
+            showToast('Tournament stats have been cleared!');
         }
 
         // Render tournament standings
